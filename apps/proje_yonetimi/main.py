@@ -3,6 +3,23 @@ import os
 import json
 import subprocess
 from tkinter import filedialog, messagebox
+import sys
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+# Örnek kullanım: 
+# logo = Image.open(resource_path("assets/logo.png"))
+
+# Ana menüden gelen yolu yakala, gelmediyse hata vermemesi için varsayılanı kullan
+if len(sys.argv) > 1:
+    FIXED_ROOT = sys.argv[1]
+else:
+    FIXED_ROOT = os.path.join(os.path.expanduser("~"), "Documents", "BEM_Kayitlari")
 
 # --- TEMA ---
 ctk.set_appearance_mode("Dark")

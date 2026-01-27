@@ -16,20 +16,21 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib import colors
 
-# --- 1. AYARLAR VE SABİTLER ---
-if getattr(sys, 'frozen', False):
-    APP_DIR = os.path.dirname(sys.executable)
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+# Örnek kullanım: 
+# logo = Image.open(resource_path("assets/logo.png"))
+
+# Ana menüden gelen yolu yakala, gelmediyse hata vermemesi için varsayılanı kullan
+if len(sys.argv) > 1:
+    FIXED_ROOT = sys.argv[1]
 else:
-    APP_DIR = os.path.dirname(os.path.abspath(__file__))
-
-DOSYA_ADI = os.path.join(APP_DIR, "katalog.json")
-
-# --- SABİT HEDEF ADRES ---
-FIXED_ROOT = "C:/Users/Monster/Dosyalar/BEM/2026"
-
-# Eğer belirtilen yol yoksa (Örn: Başka PC), Masaüstüne oluştur.
-if not os.path.exists("C:/Users/Monster"): 
-    FIXED_ROOT = os.path.join(os.path.expanduser("~"), "Desktop", "BEM_2026")
+    FIXED_ROOT = os.path.join(os.path.expanduser("~"), "Documents", "BEM_Kayitlari")
 
 CTK_THEME = "blue"
 CTK_APPEARANCE = "Dark"

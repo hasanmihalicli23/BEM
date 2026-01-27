@@ -2,6 +2,18 @@ import customtkinter as ctk
 import math
 import json
 import os
+import sys
+from tkinter import messagebox  
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+# Örnek kullanım: 
+# logo = Image.open(resource_path("assets/logo.png"))
 
 # --- TEMA ---
 ctk.set_appearance_mode("Dark")

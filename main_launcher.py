@@ -3,6 +3,32 @@ import os
 import subprocess
 import sys
 from tkinter import messagebox
+import os
+import sys
+import tkinter as tk
+from tkinter import filedialog, messagebox
+
+# --- EVRENSEL YOL FONKSİYONU ---
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+# --- ANA ÇALIŞMA DİZİNİ SEÇİMİ ---
+root = tk.Tk()
+root.withdraw() # Ana pencere gelmeden klasör seçimi açmak için
+
+# Kullanıcıya bir kez soruyoruz
+SECILEN_ANA_DIZIN = filedialog.askdirectory(title="Projelerin Kaydedileceği Ana Klasörü Seçin")
+
+if not SECILEN_ANA_DIZIN:
+    messagebox.showwarning("Uyarı", "Klasör seçilmedi! Varsayılan olarak 'Belgelerim' kullanılacak.")
+    SECILEN_ANA_DIZIN = os.path.join(os.path.expanduser("~"), "Documents", "BEM_Kayitlari")
+
+os.makedirs(SECILEN_ANA_DIZIN, exist_ok=True)
+root.destroy()
 
 # --- TEMA AYARLARI ---
 ctk.set_appearance_mode("Dark")

@@ -5,6 +5,17 @@ import win32com.client
 import pythoncom
 import threading
 from tkinter import filedialog, messagebox
+import sys
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+# Örnek kullanım: 
+# logo = Image.open(resource_path("assets/logo.png"))
 
 # --- ezdxf KONTROLÜ ---
 try: import ezdxf

@@ -6,6 +6,17 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import mm
+import sys
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+# Örnek kullanım: 
+# logo = Image.open(resource_path("assets/logo.png"))
 
 # --- TEMA ---
 ctk.set_appearance_mode("Dark")
