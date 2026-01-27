@@ -1,62 +1,56 @@
 ```markdown
 # 🏭 BEM Otomasyon - Entegre Üretim & Proje Yönetim Sistemi
 
-![Python Version](https://img.shields.io/badge/python-3.10%2B-blue?style=for-the-badge&logo=python)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python)
 ![GUI](https://img.shields.io/badge/GUI-CustomTkinter-indigo?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
-**BEM Otomasyon**, mühendislik ve üretim süreçlerini dijitalleştirmek için geliştirilmiş; klasör yönetiminden maliyet analizine, kesim optimizasyonundan teknik hesaplamalara kadar uçtan uca çözüm sunan Python tabanlı bir masaüstü yazılımıdır.
+**BEM Otomasyon**, üretim ve mühendislik süreçlerini dijitalleştirmek, hata payını sıfıra indirmek ve proje yönetimini standartlaştırmak için geliştirilmiş kapsamlı bir masaüstü yazılımıdır.
 
 ---
 
-## 🚀 Modüller ve Temel Özellikler
+## 🚀 Modüller ve Özellikler
 
-Sistem, birbirine entegre çalışan 4 ana modülden oluşur:
+Sistem, birbirine tam entegre çalışan 4 ana modülden oluşur:
 
 ### 📁 1. Akıllı Proje & Klasör Yönetimi
-Proje süreçlerinin standartlaşmasını sağlar.
-- **Otomatik Yapılandırma:** Müşteri ve Ürün adına göre standart klasör ağacını (Dökümantasyon, Tasarım, Üretim) saniyeler içinde kurar.
-- **Standart İsimlendirme:** Dosya ve klasör isimlerini bozuk karakterlerden arındırarak sistemli bir arşiv oluşturur.
-- **ERP Entegrasyon Mantığı:** Tüm modüller bu ana dizin yapısını baz alarak çalışır.
+- **Otomatik Yapılandırma:** Müşteri ve Proje adına göre standart klasör ağacını (Dökümantasyon, Tasarım, Üretim) tek tıkla kurar.
+- **Standartlaşma:** Karmaşık ve düzensiz dosya yapısını engeller.
+- **Entegrasyon:** Diğer tüm modüller bu dosya yapısını baz alarak çalışır.
 
 ### 💰 2. Maliyet Analizi & Otomatik Teklif
-Hammadde, işçilik ve fason giderlerini hesaplayarak profesyonel teklifler hazırlar.
-- **Anlık Döviz Kuru:** TCMB entegrasyonu ile USD/EUR kurlarını canlı çeker.
-- **Dinamik Hesaplama:** Malzeme, İşçilik ve Genel Gider marjlarını ayrı ayrı yönetir.
-- **Raporlama:** Teklifi PDF formatında oluşturur ve ilgili projenin `01-Dökümantasyon/Teklifler` klasörüne otomatik kaydeder.
-- **Çoklu Para Birimi:** Sonuçları TL, USD ve EUR bazında anlık gösterir.
+- **Gider Hesaplama:** Hammadde, işçilik, fason ve genel giderleri detaylı analiz eder.
+- **Canlı Döviz:** TCMB üzerinden anlık USD/EUR kurlarını çeker ve TL karşılıklarını hesaplar.
+- **Akıllı Kayıt:** Teklifi PDF formatında oluşturur ve otomatik olarak ilgili projenin `Dökümantasyon/Teklifler` klasörüne kaydeder.
+- **Çoklu Para Birimi:** Sonuç ekranında USD, EUR ve TL maliyetlerini aynı anda gösterir.
 
 ### ✂️ 3. Kesim Optimizasyonu (1D Nesting)
-Üretim firelerini minimize etmek için matematiksel algoritmalar kullanır.
-- **Fire Analizi:** Girilen parça listesini stok boyuna göre en verimli şekilde dizer.
-- **Görselleştirme:** Kesim planını grafiksel olarak ekrana çizer.
-- **PDF Raporu:** Kesim operatörü için detaylı imalat planını PDF olarak verir.
+- **Fire Analizi:** Profil ve boru kesimlerinde en az fire verecek yerleşimi matematiksel olarak hesaplar.
+- **Görsel Rapor:** Hangi parçanın hangi stoktan kesileceğini grafiksel olarak çizer.
+- **PDF Çıktısı:** Kesim operatörü için detaylı iş emri oluşturur.
 
 ### 📚 4. Teknik Kütüphane & Hesaplayıcı
-Mühendislik hesaplamaları için dijital bir el kitabıdır.
-- **Dinamik Katalog:** Cıvata, Rulman, Profil gibi standart elemanların verilerini içerir (JSON tabanlı, güncellenebilir).
-- **Mühendislik Hesapları:** Kama kanalı, segman yuvası ölçüleri ve dişli hesaplarını yapar.
+- **Dijital Katalog:** Cıvata, Rulman, Profil gibi standart makine elemanlarının verilerini içerir (JSON tabanlı, güncellenebilir).
+- **Mühendislik Hesapları:** Kama kanalı, segman yuvası ve dişli hesaplarını otomatik yapar.
 - **Birim Çevirici:** Teknik birimler arasında hızlı dönüşüm sağlar.
 
 ---
 
 ## 🛠️ Kurulum ve Çalıştırma
 
-Projeyi yerel makinenize kurmak için aşağıdaki adımları izleyin:
+Bu projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları izleyin:
 
-### Gereksinimler
-- Python 3.10 veya üzeri
-- Git
-
-### 1. Projeyi Klonlayın
+### 1. Projeyi İndirin (Klonlayın)
+Terminali açın ve şu komutu yazarak projeyi bilgisayarınıza çekin:
 ```bash
-git clone [https://github.com/KULLANICI_ADIN/BEM_Otomasyon.git](https://github.com/KULLANICI_ADIN/BEM_Otomasyon.git)
+git clone [https://github.com/hasanmihalicli23/BEM_Otomasyon.git](https://github.com/hasanmihalicli23/BEM_Otomasyon.git)
 cd BEM_Otomasyon
 
 ```
 
-### 2. Kütüphaneleri Yükleyin
+### 2. Gerekli Kütüphaneleri Yükleyin
+
+Projenin çalışması için gerekli paketleri yükleyin:
 
 ```bash
 pip install -r requirements.txt
@@ -64,6 +58,8 @@ pip install -r requirements.txt
 ```
 
 ### 3. Uygulamayı Başlatın
+
+Kurulum bittikten sonra ana menüyü açmak için:
 
 ```bash
 python main_launcher.py
@@ -77,23 +73,23 @@ python main_launcher.py
 ```text
 BEM_Otomasyon/
 ├── apps/
-│   ├── proje_klasor_yonetimi/   # Modül 1 Kaynak Kodları
-│   ├── maliyet_hesaplama/       # Modül 2 Kaynak Kodları (PDF & TCMB)
-│   ├── kesim_optimizasyonu/     # Modül 3 Kaynak Kodları (Nesting)
-│   └── standart_kutuphane/      # Modül 4 Kaynak Kodları (Data)
+│   ├── proje_klasor_yonetimi/   # Modül 1: Klasör Yapılandırma
+│   ├── maliyet_hesaplama/       # Modül 2: Maliyet & PDF & TCMB
+│   ├── kesim_optimizasyonu/     # Modül 3: Nesting Algoritması
+│   └── standart_kutuphane/      # Modül 4: Teknik Veri & Hesap
 ├── assets/                      # İkonlar ve görseller
-├── main_launcher.py             # Ana Menü (Başlatıcı)
-├── requirements.txt             # Bağımlılıklar
-└── README.md                    # Dökümantasyon
+├── main_launcher.py             # Ana Başlatıcı (Menü)
+├── requirements.txt             # Kütüphane Listesi
+└── README.md                    # Dökümantasyon Dosyası
 
 ```
 
-## 📞 İletişim & Geliştirici
+---
 
-Bu proje **[HASAN MIHALIÇLI]** tarafından geliştirilmiştir.
+## 📞 İletişim
 
-* **GitHub:** [github.com/hasanmihalicil23](https://www.google.com/search?q=https://github.com/hasanmihalicli23)
-* **Email:** [mail@hasanmihalicli.com]
+Geliştirici: **[HASAN MIHALIÇLI]**
+GitHub Profilim: [github.com/hasanmihalicli23](https://www.google.com/search?q=https://github.com/hasanmihalicli23)
 
 ---
 
@@ -101,65 +97,4 @@ Bu proje **[HASAN MIHALIÇLI]** tarafından geliştirilmiştir.
 
 ```
 
----
-
-### 2. Dosya: `requirements.txt` (Kütüphane Listesi)
-Bu dosya, projeyi başka bir bilgisayara kurarken hangi modüllerin gerekli olduğunu söyler. Proje ana dizinine bu isimle kaydet:
-
-```text
-customtkinter==5.2.2
-pandas>=2.0.0
-openpyxl>=3.1.0
-reportlab>=4.0.0
-requests>=2.31.0
-Pillow>=10.0.0
-
 ```
-
----
-
-### 3. Dosya: `.gitignore` (Gereksiz Dosya Engelleyici)
-
-Bu dosya, gereksiz sistem dosyalarının GitHub'a yüklenmesini engeller. Proje ana dizinine `.gitignore` adıyla (nokta ile başlar) kaydet:
-
-```text
-# Python derleme dosyaları
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Sanal ortam klasörleri
-venv/
-env/
-.env
-
-# IDE ayar dosyaları
-.vscode/
-.idea/
-
-# Windows sistem dosyaları
-Thumbs.db
-Desktop.ini
-
-# Proje çıktıları (Kullanıcı verisi içerdiği için yüklenmez)
-*.pdf
-*.xlsx
-katalog.json
-bem_folder_config.json
-
-```
-
----
-
-### Son Adım: GitHub'a Gönder 🚀
-
-Bu dosyaları oluşturup kaydettikten sonra terminali aç ve şu komutlarla gönder:
-
-```bash
-git add .
-git commit -m "Proje dökümantasyonu, lisans ve gereksinimler eklendi"
-git push
-
-```
-
