@@ -1,49 +1,47 @@
 import customtkinter as ctk
 import os
-import json
-import subprocess
-from tkinter import filedialog, messagebox
 import sys
+from tkinter import filedialog, messagebox
 
+# --- EXE UYUMLU KAYNAK YOLU (İleride ikon eklenirse diye tutuldu) ---
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.abspath(".")
+        base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
-# Örnek kullanım: 
-# logo = Image.open(resource_path("assets/logo.png"))
-
-# Ana menüden gelen yolu yakala, gelmediyse hata vermemesi için varsayılanı kullan
-if len(sys.argv) > 1:
-    FIXED_ROOT = sys.argv[1]
+# --- DİNAMİK YOL YAKALAMA (Launcher'dan Gelen Veri) ---
+if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+    ROOT_DIR = sys.argv[1]
 else:
-    FIXED_ROOT = os.path.join(os.path.expanduser("~"), "Documents", "BEM_Kayitlari")
+    # Launcher harici açılırsa varsayılan yol
+    ROOT_DIR = os.path.join(os.path.expanduser("~"), "Documents", "BEM_Kayitlari")
+
+# Klasör yoksa oluştur
+if not os.path.exists(ROOT_DIR):
+    os.makedirs(ROOT_DIR, exist_ok=True)
 
 # --- TEMA ---
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("dark-blue")
 
-# MONOCHROME AYARLAR
 COLOR_BG = "#121212"
 COLOR_CARD = "#1E1E1E"
-COLOR_TEXT = "#FFFFFF"
-COLOR_BTN_BG = "#E0E0E0"        # Buton Arka Planı
-COLOR_BTN_TEXT = "#000000"      # Buton Yazısı
-COLOR_BTN_HOVER = "#FFFFFF"     # Hover Rengi
-
-CONFIG_FILE = "bem_folder_config.json"
+COLOR_BTN_BG = "#E0E0E0"
+COLOR_BTN_TEXT = "#000000"
+COLOR_BTN_HOVER = "#FFFFFF"
 
 class ProjectFolderApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("BEM")
+        self.title("BEM - Proje Yöneticisi")
         self.geometry("600x700")
         self.resizable(False, False)
         self.configure(fg_color=COLOR_BG)
 
-        self.root_dir = self.load_config()
+        # Ana dizini ayarla
+        self.root_dir = ROOT_DIR
 
         # --- BAŞLIK ---
         self.frame_head = ctk.CTkFrame(self, fg_color="transparent")
@@ -51,21 +49,17 @@ class ProjectFolderApp(ctk.CTk):
         ctk.CTkLabel(self.frame_head, text="PROJE", font=("Impact", 32), text_color="#FFFFFF").pack()
         ctk.CTkLabel(self.frame_head, text="Standart Klasör Yapılandırması", font=("Arial", 12), text_color="gray").pack()
 
-        # --- KART 1: ANA KLASÖR SEÇİMİ ---
+        # --- BİLGİ KARTI ---
         self.frame_root = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=15, border_width=1, border_color="#333")
         self.frame_root.pack(pady=10, padx=30, fill="x")
 
-        ctk.CTkLabel(self.frame_root, text="ÇALIŞMA YILI / ANA DİZİN", font=("Arial", 12, "bold"), text_color="gray").pack(anchor="w", padx=20, pady=(15, 5))
+        ctk.CTkLabel(self.frame_root, text="AKTİF ÇALIŞMA KLASÖRÜ", font=("Arial", 12, "bold"), text_color="gray").pack(anchor="w", padx=20, pady=(15, 5))
+        
+        # Sadece bilgi verir, değiştirme yetkisi Ana Launcher'da
+        self.lbl_root_path = ctk.CTkLabel(self.frame_root, text=self.root_dir, font=("Consolas", 11), text_color="#29B6F6", anchor="w")
+        self.lbl_root_path.pack(fill="x", padx=20, pady=(5, 20))
 
-        self.lbl_root_path = ctk.CTkLabel(self.frame_root, text=self.root_dir if self.root_dir else "Seçili Değil", 
-                                          font=("Consolas", 11), text_color="#FFFFFF" if self.root_dir else "red", anchor="w")
-        self.lbl_root_path.pack(fill="x", padx=20, pady=5)
-
-        btn_root = self.create_white_btn(self.frame_root, "ANA KLASÖRÜ DEĞİŞTİR", self.select_root_directory)
-        btn_root.configure(height=35, font=("Arial", 11, "bold")) # Bu buton biraz daha kibar olsun
-        btn_root.pack(pady=(5, 20), padx=20, fill="x")
-
-        # --- KART 2: PROJE DETAYLARI ---
+        # --- GİRİŞLER ---
         self.frame_inputs = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=15, border_width=1, border_color="#333")
         self.frame_inputs.pack(pady=10, padx=30, fill="x")
 
@@ -94,31 +88,12 @@ class ProjectFolderApp(ctk.CTk):
         if self.root_dir: self.refresh_customers()
 
     def create_white_btn(self, master, text, command):
-        """Özel Beyaz Buton (Batch Exporter ile aynı)"""
         return ctk.CTkButton(master, text=text, font=("Arial", 13, "bold"),
                              height=45, fg_color=COLOR_BTN_BG, text_color=COLOR_BTN_TEXT,
-                             hover_color=COLOR_BTN_HOVER, corner_radius=10,
-                             command=command)
-
-    def load_config(self):
-        if os.path.exists(CONFIG_FILE):
-            try:
-                with open(CONFIG_FILE, "r") as f: return json.load(f).get("root_dir", "")
-            except: return ""
-        return ""
-
-    def save_config(self, path):
-        with open(CONFIG_FILE, "w") as f: json.dump({"root_dir": path}, f)
-
-    def select_root_directory(self):
-        path = filedialog.askdirectory(title="Çalışılacak YIL klasörünü seçin (Örn: BEM/2026)")
-        if path:
-            self.root_dir = path
-            self.save_config(path)
-            self.lbl_root_path.configure(text=path, text_color="#29B6F6")
-            self.refresh_customers()
+                             hover_color=COLOR_BTN_HOVER, corner_radius=10, command=command)
 
     def refresh_customers(self):
+        """Mevcut dizindeki firmaları (klasörleri) listeler."""
         if not self.root_dir or not os.path.exists(self.root_dir): return
         try:
             customers = [d for d in os.listdir(self.root_dir) if os.path.isdir(os.path.join(self.root_dir, d))]
@@ -127,42 +102,33 @@ class ProjectFolderApp(ctk.CTk):
         except Exception as e: self.lbl_status.configure(text=f"Hata: {e}")
 
     def format_title(self, text):
-        """Metni 'İlk Harfler Büyük' formatına çevirir (Title Case)."""
         if not text: return ""
         return text.strip().title()
 
     def create_project(self):
-        if not self.root_dir:
-            messagebox.showerror("Hata", "Lütfen önce Ana Klasör (Yıl) seçin!")
-            return
-
         raw_cust = self.combo_cust.get()
         raw_proj = self.entry_proj.get()
-
         cust_name = self.format_title(raw_cust)
         proj_name = self.format_title(raw_proj)
 
         if not cust_name: messagebox.showwarning("Eksik", "Firma adı girmediniz."); return
         if not proj_name: messagebox.showwarning("Eksik", "Proje/Ürün adı girmediniz."); return
 
-        # Hedef Yol
         target_path = os.path.join(self.root_dir, cust_name, proj_name)
 
         if os.path.exists(target_path):
             messagebox.showerror("Hata", f"Bu proje klasörü zaten var!\n\n{target_path}")
             return
 
-        # --- NUMARASIZ, SADE KLASÖR YAPISI (SENİN İSTEDİĞİN GİBİ) ---
+        # Standart Klasör Ağacı
         subfolders = [
             "Tasarım Dosyaları/Ana Montaj",
             "Tasarım Dosyaları/Sac Parçalar",
             "Tasarım Dosyaları/Mekanik Parçalar",
             "Tasarım Dosyaları/Satınalma Parçaları",
-            
             "Üretim Çıktıları/DXF Kesim",
             "Üretim Çıktıları/PDF Teknik Resim",
             "Üretim Çıktıları/STEP 3D",
-            
             "Dökümantasyon/Teklifler",
             "Dökümantasyon/Malzeme Listeleri",
             "Dökümantasyon/Görseller"
@@ -176,7 +142,13 @@ class ProjectFolderApp(ctk.CTk):
             self.lbl_status.configure(text=f"Oluşturuldu: {proj_name}", text_color="#66BB6A")
             
             msg_box = messagebox.askyesno("Başarılı", f"Proje yapısı kuruldu:\n\n{cust_name} / {proj_name}\n\nKlasörü şimdi açmak ister misin?")
-            if msg_box: os.startfile(target_path)
+            if msg_box:
+                try:
+                    os.startfile(target_path)
+                except AttributeError:
+                    # Mac/Linux desteği (os.startfile sadece Windows'ta var)
+                    import subprocess
+                    subprocess.call(['open', target_path] if sys.platform == 'darwin' else ['xdg-open', target_path])
 
             self.refresh_customers()
             self.entry_proj.delete(0, "end")

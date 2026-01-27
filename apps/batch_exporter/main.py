@@ -7,15 +7,13 @@ import threading
 from tkinter import filedialog, messagebox
 import sys
 
+# --- EXE UYUMLU KAYNAK YOLU ---
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.abspath(".")
+        base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
-
-# Örnek kullanım: 
-# logo = Image.open(resource_path("assets/logo.png"))
 
 # --- ezdxf KONTROLÜ ---
 try: import ezdxf
@@ -73,10 +71,6 @@ class BatchExporterApp(ctk.CTk):
                                         fg_color="white", checkmark_color="black", text_color="white")
         self.chk_step.pack(side="left", padx=20)
         self.chk_step.select()
-
-        # GİZLİ "Zorla Al" MANTIĞI:
-        # Kodun orijinalinde self.chk_force_dxf vardı.
-        # Şimdi onu UI'dan kaldırdım ama aşağıda process_part içinde hep True kabul edeceğim.
 
         # TABLAR
         self.tabview = ctk.CTkTabview(self, width=500, height=300, 
@@ -199,32 +193,25 @@ class BatchExporterApp(ctk.CTk):
             if self.chk_dxf.get():
                 thickness = self.is_sheet_metal(model)
                 
-                # --- GİZLİ MANTIK ---
-                # Orijinal kodda self.chk_force_dxf.get() vardı.
-                # Burada onu sabit True yapıyorum ki hep zorlasın.
-                force_dxf = True 
+                # --- OPTİMİZASYON ---
+                # Gizli mantık artık açık: Sac levha olmasa bile DXF'i dener
                 
-                if force_dxf or (thickness is not None):
-                    th_str = str(int(thickness)) if (thickness and thickness.is_integer()) else str(thickness or "Levha")
-                    if not thickness: dxf_name = f"{filename}.dxf"
-                    else: dxf_name = f"{th_str}mm - {filename}.dxf"
+                th_str = str(int(thickness)) if (thickness and thickness.is_integer()) else str(thickness or "Levha")
+                if not thickness: dxf_name = f"{filename}.dxf"
+                else: dxf_name = f"{th_str}mm - {filename}.dxf"
+                
+                dxf_path = os.path.join(dxf_dir, dxf_name)
+                if not os.path.exists(dxf_path):
+                    data_alignment = [0.0] * 12
+                    var_alignment = win32com.client.VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_R8, data_alignment)
                     
-                    dxf_path = os.path.join(dxf_dir, dxf_name)
-                    if not os.path.exists(dxf_path):
-                        data_alignment = [0.0] * 12
-                        var_alignment = win32com.client.VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_R8, data_alignment)
-                        
-                        # 1. Yöntem: Sac Açınımı
-                        res = model.ExportToDWG2(dxf_path, path, 1, True, var_alignment, False, False, 5, None)
-                        
-                        # 2. Yöntem (V17 Orijinalinde yoktu ama V16'da vardı, eklememi ister misin? 
-                        # Şimdilik orijinal V17'ye sadık kalıyorum sadece ExportToDWG2 deniyor)
-                        
-                        if res: 
-                            self.log(f"-> DXF: {dxf_name}")
-                            self.process_with_ezdxf(dxf_path)
-                        else: self.log(f"-> DXF BAŞARISIZ: {filename}")
-                else: self.log(f"   (Atlandı: Sac Değil)")
+                    # 1. Yöntem: Sac Açınımı
+                    res = model.ExportToDWG2(dxf_path, path, 1, True, var_alignment, False, False, 5, None)
+                    
+                    if res: 
+                        self.log(f"-> DXF: {dxf_name}")
+                        self.process_with_ezdxf(dxf_path)
+                    else: self.log(f"-> DXF BAŞARISIZ: {filename}")
 
             # STEP
             if self.chk_step.get():
@@ -255,7 +242,6 @@ class BatchExporterApp(ctk.CTk):
     # --- 1. KLASÖR MODU (HAYALET + FİLTRE) ---
     def run_folder_logic(self, folder_path):
         pythoncom.CoInitialize()
-        # self.btn_select_folder artık yok, yerel değişkende kaldı ama sorun değil
         self.txt_log.delete("1.0", "end")
         
         filter_text = self.entry_filter.get().strip().lower()

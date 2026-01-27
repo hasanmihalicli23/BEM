@@ -4,18 +4,20 @@ from tkinter import messagebox
 import os
 import sys
 
+# --- EXE UYUMLU KAYNAK YOLU ---
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.abspath(".")
+        base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
-# Örnek kullanım: 
-# logo = Image.open(resource_path("assets/logo.png"))
+# --- LAUNCHER BAĞLANTISI (Standart Yapı) ---
+if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+    WORKSPACE_PATH = sys.argv[1]
+else:
+    WORKSPACE_PATH = os.path.join(os.path.expanduser("~"), "Documents", "BEM_Kayitlari")
 
-# Örnek kullanım: 
-# logo = Image.open(resource_path("assets/logo.png"))
 # --- TEMA ---
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("dark-blue")
@@ -35,10 +37,18 @@ class MassCalculatorApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("BEM - Kütle Toplayıcı")
-        self.geometry("1000x700") # Geniş ekran
+        self.geometry("1000x700")
         self.configure(fg_color=COLOR_BG)
 
         self.cart_items = [] # Sepet Listesi
+
+        # Malzeme Yoğunlukları (g/cm^3)
+        self.densities = {
+            "DKP Sac": 7.85, "HRP (Siyah) Sac": 7.85, "Galvaniz Sac": 7.85, "Çelik (İmalat)": 7.85,
+            "Paslanmaz 304": 7.90, "Paslanmaz 316": 7.98, "Alüminyum": 2.70, "Pirinç (Sarı)": 8.50,
+            "Bronz": 8.80, "Bakır": 8.96, "Döküm (Pik)": 7.20, "Titanyum": 4.43, 
+            "Kestamid": 1.15, "PEEK": 1.32, "Delrin (POM)": 1.42, "Polyamid 6": 1.13, "Teflon (PTFE)": 2.20
+        }
 
         # --- DÜZEN (SOL / SAĞ) ---
         self.grid_columnconfigure(0, weight=1) # Sol (Hesap)
@@ -70,20 +80,14 @@ class MassCalculatorApp(ctk.CTk):
         self.sv_boy = ctk.StringVar()
         self.sv_olcu1 = ctk.StringVar()
         self.sv_olcu2 = ctk.StringVar()
-        self.sv_adet = ctk.StringVar(value="1") # Varsayılan 1 adet
+        self.sv_adet = ctk.StringVar(value="1")
 
         for sv in [self.sv_boy, self.sv_olcu1, self.sv_olcu2, self.sv_adet]:
             sv.trace_add("write", self.calculate)
 
         # Malzeme Seçimi
         ctk.CTkLabel(self.frame_inputs, text="MALZEME", font=("Arial", 11, "bold"), text_color="gray").pack(anchor="w", padx=20, pady=(15, 5))
-        self.malzemeler = [
-            "DKP Sac", "HRP (Siyah) Sac", "Galvaniz Sac", "Çelik (İmalat)", 
-            "Paslanmaz 304", "Paslanmaz 316", "Alüminyum", "Pirinç (Sarı)", 
-            "Bronz", "Bakır", "Döküm (Pik)", "Titanyum", 
-            "Kestamid", "PEEK", "Delrin (POM)", "Polyamid 6", "Teflon (PTFE)"
-        ]
-        self.cmb_malzeme = ctk.CTkComboBox(self.frame_inputs, values=self.malzemeler, height=35, 
+        self.cmb_malzeme = ctk.CTkComboBox(self.frame_inputs, values=list(self.densities.keys()), height=35, 
                                            fg_color=COLOR_BG, border_color="#444", text_color="white", dropdown_fg_color="#222",
                                            command=self.calculate)
         self.cmb_malzeme.set("DKP Sac")
@@ -124,7 +128,7 @@ class MassCalculatorApp(ctk.CTk):
         # SAĞ PANEL: LİSTE VE TOPLAM
         # ========================================================
         self.frame_right = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=0)
-        self.frame_right.grid(row=0, column=1, sticky="nsew") # Köşeli olsun sağ taraf tam yaslansın
+        self.frame_right.grid(row=0, column=1, sticky="nsew")
 
         ctk.CTkLabel(self.frame_right, text="PARÇA LİSTESİ", font=("Impact", 24), text_color=COLOR_TEXT_MAIN).pack(anchor="w", padx=20, pady=(30, 10))
 
@@ -195,13 +199,7 @@ class MassCalculatorApp(ctk.CTk):
         
         if adet < 1: adet = 1
 
-        ozkutleler = {
-            "DKP Sac": 7.85, "HRP (Siyah) Sac": 7.85, "Galvaniz Sac": 7.85, "Çelik (İmalat)": 7.85,
-            "Paslanmaz 304": 7.90, "Paslanmaz 316": 7.98, "Alüminyum": 2.70, "Pirinç (Sarı)": 8.50,
-            "Bronz": 8.80, "Bakır": 8.96, "Döküm (Pik)": 7.20, "Titanyum": 4.43, "Kestamid": 1.15,
-            "PEEK": 1.32, "Delrin (POM)": 1.42, "Polyamid 6": 1.13, "Teflon (PTFE)": 2.20
-        }
-        rho = ozkutleler.get(malzeme, 7.85)
+        rho = self.densities.get(malzeme, 7.85)
         
         alan_mm2 = 0
         if sekil == "Sac / Levha": alan_mm2 = olcu1 * olcu2
@@ -237,8 +235,6 @@ class MassCalculatorApp(ctk.CTk):
             "toplam": toplam_agirlik
         }
         self.cart_items.append(item)
-        
-        # Listeyi Güncelle
         self.update_list_ui()
 
     def update_list_ui(self):

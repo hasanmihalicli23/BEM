@@ -3,17 +3,33 @@ import math
 import json
 import os
 import sys
-from tkinter import messagebox  
+from tkinter import messagebox
 
+# --- EXE UYUMLU KAYNAK YOLU ---
 def resource_path(relative_path):
+    """ Dosyayı hem geliştirme ortamında hem de EXE içinde doğru bulur """
     try:
+        # PyInstaller temp klasörü
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.abspath(".")
+        # Normal çalışma klasörü (Script'in olduğu yer)
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    
+    # Eğer EXE modundaysak ve dosya apps klasörü içindeyse yolu koru
+    # (Bu kısım PyInstaller'ın dosya yapısını korumasıyla ilgilidir)
+    if hasattr(sys, '_MEIPASS'):
+        # _MEIPASS/apps/standart_kutuphane/data.json yolunu oluşturmak için:
+        # Ancak basitlik adına, __file__ tabanlı yol EXE içinde de çalışır
+        # çünkü --add-data "apps;apps" kullandık.
+        base_path = os.path.dirname(os.path.abspath(__file__))
+
     return os.path.join(base_path, relative_path)
 
-# Örnek kullanım: 
-# logo = Image.open(resource_path("assets/logo.png"))
+# --- ANA MENÜDEN GELEN YOLU YAKALA (Standartlaştırma) ---
+if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+    WORKSPACE_PATH = sys.argv[1]
+else:
+    WORKSPACE_PATH = os.path.join(os.path.expanduser("~"), "Documents", "BEM_Kayitlari")
 
 # --- TEMA ---
 ctk.set_appearance_mode("Dark")
@@ -47,7 +63,7 @@ class StandardLibraryApp(ctk.CTk):
         self.tabview._segmented_button.configure(font=("Arial", 12, "bold"))
         self.tabview.pack(fill="both", expand=True, padx=20, pady=(10, 20))
 
-        # Sekmeler (Dişli Kaldırıldı)
+        # Sekmeler
         self.tab_catalog = self.tabview.add(" GENEL KATALOG ")
         self.tab_shaft = self.tabview.add(" MİL & GÖBEK ")
         self.tab_bend = self.tabview.add(" K-FAKTÖRÜ ÇİZELGESİ ")
@@ -61,14 +77,15 @@ class StandardLibraryApp(ctk.CTk):
 
     def load_database(self):
         """JSON dosyasını güvenli bir şekilde okur."""
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        json_path = os.path.join(current_dir, "data.json")
+        # KRİTİK: resource_path fonksiyonunu kullanıyoruz
+        json_path = resource_path("data.json")
         
         self.catalog_data = {}
         self.calc_data = {}
 
         if not os.path.exists(json_path):
-            return # Dosya yoksa sessizce geç, arayüz boş açılır.
+            messagebox.showerror("Hata", f"Veritabanı dosyası bulunamadı:\n{json_path}")
+            return
 
         try:
             with open(json_path, "r", encoding="utf-8") as f:
@@ -76,7 +93,7 @@ class StandardLibraryApp(ctk.CTk):
                 self.catalog_data = full_data.get("CATALOG", {})
                 self.calc_data = full_data.get("CALCULATION_DATA", {})
         except Exception as e:
-            print(f"Veri Okuma Hatası: {e}")
+            messagebox.showerror("Hata", f"Veri Okuma Hatası:\n{e}")
 
     # --- YARDIMCI UI FONKSİYONLARI ---
     def create_stat_row(self, parent, label, value_var):

@@ -5,18 +5,22 @@ import datetime
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
-from reportlab.lib.units import mm
 import sys
+import subprocess
 
+# --- EXE UYUMLU KAYNAK YOLU ---
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.abspath(".")
+        base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
-# Örnek kullanım: 
-# logo = Image.open(resource_path("assets/logo.png"))
+# --- ANA MENÜDEN GELEN YOLU YAKALA ---
+if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+    WORKSPACE_PATH = sys.argv[1]
+else:
+    WORKSPACE_PATH = os.path.join(os.path.expanduser("~"), "Documents", "BEM_Kayitlari")
 
 # --- TEMA ---
 ctk.set_appearance_mode("Dark")
@@ -34,7 +38,7 @@ COLOR_ACCENT_RED = "#FF5252"
 class CuttingOptimizerApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("BEM")
+        self.title("BEM - Kesim Optimizasyonu")
         self.geometry("1050x750")
         self.configure(fg_color=COLOR_BG)
 
@@ -199,7 +203,11 @@ class CuttingOptimizerApp(ctk.CTk):
         stock_len = self.last_result["stock"]
         kerf = self.last_result["kerf"]
 
-        path = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF Dosyası", "*.pdf")], title="Raporu Kaydet")
+        # Varsayılan klasör olarak WORKSPACE_PATH'i ayarla
+        path = filedialog.asksaveasfilename(defaultextension=".pdf", 
+                                            initialdir=WORKSPACE_PATH,
+                                            filetypes=[("PDF Dosyası", "*.pdf")], 
+                                            title="Raporu Kaydet")
         if not path: return
 
         try:
@@ -222,14 +230,12 @@ class CuttingOptimizerApp(ctk.CTk):
             c.line(30, height - 60, width - 30, height - 60)
 
             # --- ÖZET KUTUSU ---
-            # Hesaplamalar
             total_bars = len(bars)
             total_waste = 0
             total_len = total_bars * stock_len
             for b in bars: total_waste += stock_len - (sum(b) + (len(b)-1)*kerf)
             efficiency = ((total_len - total_waste) / total_len) * 100
 
-            # Kutu Çizimi
             c.setLineWidth(1)
             c.rect(30, height - 120, width - 60, 50, stroke=1, fill=0)
             
@@ -242,16 +248,14 @@ class CuttingOptimizerApp(ctk.CTk):
 
             # --- ÇUBUK ÇİZİMLERİ ---
             y = height - 160
-            bar_draw_width = width - 60 # Sayfa genişliğine yay
+            bar_draw_width = width - 60 
             bar_height = 15
             
             for i, bar in enumerate(bars):
-                # Sayfa Sonu Kontrolü
                 if y < 60:
                     c.showPage()
                     y = height - 50
                 
-                # Stok Başlığı
                 used_len = sum(bar) + (len(bar)-1)*kerf
                 waste = stock_len - used_len
                 
@@ -261,51 +265,48 @@ class CuttingOptimizerApp(ctk.CTk):
                 c.setFont("Helvetica", 10)
                 c.drawRightString(width - 30, y + 20, f"Fire: {waste:.1f} mm")
 
-                # Ana Çubuk (Boş Çerçeve)
                 c.setStrokeColor(colors.black)
                 c.rect(30, y, bar_draw_width, bar_height)
                 
-                # Parçaları Yerleştir
                 current_x = 30
                 for piece in bar:
                     piece_w_px = (piece / stock_len) * bar_draw_width
                     
-                    # Parça (Dolu Gri)
                     c.setFillColor(colors.lightgrey)
                     c.rect(current_x, y, piece_w_px, bar_height, fill=1, stroke=1)
                     
-                    # Parça Ölçüsü (Yazı)
-                    if piece_w_px > 15: # Sadece sığarsa yaz
+                    if piece_w_px > 15: 
                         c.setFillColor(colors.black)
                         c.setFont("Helvetica", 8)
                         c.drawCentredString(current_x + piece_w_px/2, y + 4, f"{piece:.0f}")
                     
-                    # Testere Payı (Atla)
                     kerf_w_px = (kerf / stock_len) * bar_draw_width
                     current_x += piece_w_px + kerf_w_px
                 
-                # Fire Kısmı (Kırmızı Taralı veya Renkli)
                 waste_w_px = (waste / stock_len) * bar_draw_width
                 if waste_w_px > 0:
-                    c.setFillColor(colors.Color(1, 0.8, 0.8)) # Açık Kırmızı
+                    c.setFillColor(colors.Color(1, 0.8, 0.8)) 
                     c.rect(current_x - kerf_w_px, y, width - 30 - (current_x - kerf_w_px), bar_height, fill=1, stroke=1)
                     c.setFillColor(colors.red)
                     c.setFont("Helvetica-Oblique", 8)
-                    # Fire yazısı
                     if waste_w_px > 20:
                         c.drawCentredString((current_x - kerf_w_px) + waste_w_px/2, y + 4, "FIRE")
 
-                # Alt Liste Metni
                 c.setFillColor(colors.black)
                 c.setFont("Helvetica", 9)
                 text_list = " + ".join([f"{p:.0f}" for p in bar])
                 c.drawString(30, y - 12, f"Kesimler: {text_list}")
 
-                y -= 60 # Aşağı in
+                y -= 60 
 
             c.save()
             messagebox.showinfo("Başarılı", "PDF Raporu başarıyla oluşturuldu!")
-            os.startfile(path)
+            
+            # Cross-platform dosya açma
+            if sys.platform == "win32":
+                os.startfile(path)
+            else:
+                subprocess.call(['open' if sys.platform == 'darwin' else 'xdg-open', path])
 
         except Exception as e:
             messagebox.showerror("Hata", f"PDF Hatası: {e}")

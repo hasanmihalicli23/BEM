@@ -16,26 +16,33 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib import colors
 
+# --- EXE UYUMLU KAYNAK YOLU ---
 def resource_path(relative_path):
+    """Dosya yollarını hem geliştirme hem de EXE ortamında bulur."""
     try:
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.abspath(".")
+        base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
-# Örnek kullanım: 
-# logo = Image.open(resource_path("assets/logo.png"))
-
-# Ana menüden gelen yolu yakala, gelmediyse hata vermemesi için varsayılanı kullan
-if len(sys.argv) > 1:
+# --- DİNAMİK YOL YAKALAMA (Launcher'dan Gelen) ---
+if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
     FIXED_ROOT = sys.argv[1]
 else:
+    # Varsayılan yol
     FIXED_ROOT = os.path.join(os.path.expanduser("~"), "Documents", "BEM_Kayitlari")
+
+# Klasörü garantiye al
+if not os.path.exists(FIXED_ROOT):
+    os.makedirs(FIXED_ROOT, exist_ok=True)
+
+# --- DOSYA VE AYARLAR ---
+# Katalog dosyasının yeri (Hata buradaydı, düzeltildi)
+DOSYA_ADI = resource_path("katalog.json")
 
 CTK_THEME = "blue"
 CTK_APPEARANCE = "Dark"
 APP_TITLE = "BEM - Maliyet ve Teklif Yönetimi"
-FONT_MAIN = ("Segoe UI", 12)
 FONT_BOLD = ("Segoe UI", 12, "bold")
 FONT_ICON = ("Segoe UI Emoji", 20)
 
@@ -60,7 +67,7 @@ varsayilan_katalog = {
     "Diğer / Özel Giriş": ["Diğer (Manuel Giriş)"]
 }
 
-# --- 2. YARDIMCI FONKSİYONLAR ---
+# --- YARDIMCI FONKSİYONLAR ---
 def format_para(deger):
     try: return f"{float(deger):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     except: return "0,00"
@@ -78,13 +85,8 @@ def create_res_card(parent, title, color_theme):
     ctk.CTkLabel(f, text=title, font=("Segoe UI", 12, "bold"), text_color="#444").pack(anchor="center", pady=(5, 0))
     return f
 
-# --- 3. AKILLI KLASÖR VE DOSYA YÖNETİMİ ---
+# --- KLASÖR YAPISI ---
 def klasor_yapisi_kontrol_ve_olustur():
-    """
-    1. C:/Users/Monster/Dosyalar/BEM/2026/Müşteri/Ürün klasörünü kontrol eder.
-    2. Yoksa oluşturur ve altına tam takım (Dökümantasyon, Tasarım, Üretim) klasör ağacını kurar.
-    3. Kayıt yapılacak 'Dökümantasyon/Teklifler' yolunu döndürür.
-    """
     m_adi = temizle_dosya_adi(entry_musteri.get())
     p_adi = temizle_dosya_adi(entry_proje_adi.get())
 
@@ -92,86 +94,78 @@ def klasor_yapisi_kontrol_ve_olustur():
         messagebox.showwarning("Eksik Bilgi", "Lütfen Müşteri ve Proje Adını giriniz.")
         return None
 
-    # Ana Proje Yolu
     proje_yolu = os.path.join(FIXED_ROOT, m_adi, p_adi)
-    
-    # Hedef Kayıt Yolu (Teklifler Klasörü)
     hedef_yol = os.path.join(proje_yolu, "Dökümantasyon", "Teklifler")
 
-    # Eğer hedef yol zaten varsa, yapıyı tekrar kurmaya gerek yok.
     if os.path.exists(hedef_yol):
         return hedef_yol
 
-    # --- KLASÖR AĞACI OLUŞTURMA ---
     try:
-        # Görsellerdeki yapıya birebir uygun liste
         structure = {
-            "Dökümantasyon": [
-                "Görseller", 
-                "Malzeme Listeleri", 
-                "Teklifler"
-            ],
-            "Tasarım Dosyaları": [
-                "Ana Montaj", 
-                "Mekanik Parçalar", 
-                "Sac Parçalar", 
-                "Satınalma Parçaları"
-            ],
-            "Üretim Çıktıları": [
-                "DXF Kesim", 
-                "PDF Teknik Resim", 
-                "STEP 3D"
-            ]
+            "Dökümantasyon": ["Görseller", "Malzeme Listeleri", "Teklifler"],
+            "Tasarım Dosyaları": ["Ana Montaj", "Mekanik Parçalar", "Sac Parçalar", "Satınalma Parçaları"],
+            "Üretim Çıktıları": ["DXF Kesim", "PDF Teknik Resim", "STEP 3D"]
         }
 
-        # Ana proje klasörünü oluştur
         if not os.path.exists(proje_yolu):
             os.makedirs(proje_yolu)
 
-        # Alt klasörleri oluştur
         for ana_klasor, alt_klasorler in structure.items():
             ana_yol = os.path.join(proje_yolu, ana_klasor)
             os.makedirs(ana_yol, exist_ok=True)
             for alt in alt_klasorler:
                 os.makedirs(os.path.join(ana_yol, alt), exist_ok=True)
         
-        print(f"Klasör yapısı oluşturuldu: {proje_yolu}")
         return hedef_yol
 
     except Exception as e:
         messagebox.showerror("Klasör Hatası", f"Klasör yapısı oluşturulamadı:\n{e}")
         return None
 
-# --- 4. VERİ YÖNETİMİ ---
+# --- VERİ YÖNETİMİ ---
 def katalog_kaydet(veri):
-    with open(DOSYA_ADI, "w", encoding="utf-8") as f: json.dump(veri, f, ensure_ascii=False, indent=4)
+    try:
+        with open(DOSYA_ADI, "w", encoding="utf-8") as f: 
+            json.dump(veri, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        print(f"Katalog kayıt hatası: {e}")
 
 def katalog_yukle():
     if os.path.exists(DOSYA_ADI):
         try:
-            with open(DOSYA_ADI, "r", encoding="utf-8") as f: return json.load(f)
-        except: return varsayilan_katalog
+            with open(DOSYA_ADI, "r", encoding="utf-8") as f: 
+                return json.load(f)
+        except: 
+            return varsayilan_katalog
     else: 
-        katalog_kaydet(varsayilan_katalog); return varsayilan_katalog
+        katalog_kaydet(varsayilan_katalog)
+        return varsayilan_katalog
 
 katalog = katalog_yukle()
 
-# --- 5. İŞ MANTIĞI ---
+# --- İŞ MANTIĞI ---
 def tcmb_kur_getir():
     try:
         url = "https://www.tcmb.gov.tr/kurlar/today.xml"
-        res = requests.get(url)
+        res = requests.get(url, timeout=5)
         if res.status_code == 200:
             root = ET.fromstring(res.content)
             for currency in root.findall('Currency'):
                 kod = currency.get('Kod')
-                if kod == 'USD': entry_kur_usd.delete(0, 'end'); entry_kur_usd.insert(0, currency.find('ForexSelling').text)
-                elif kod == 'EUR': entry_kur_eur.delete(0, 'end'); entry_kur_eur.insert(0, currency.find('ForexSelling').text)
+                if kod == 'USD': 
+                    entry_kur_usd.delete(0, 'end')
+                    entry_kur_usd.insert(0, currency.find('ForexSelling').text)
+                elif kod == 'EUR': 
+                    entry_kur_eur.delete(0, 'end')
+                    entry_kur_eur.insert(0, currency.find('ForexSelling').text)
             lbl_durum.configure(text="Kurlar Güncel ✔", text_color=COLOR_SUCCESS) 
-        else: lbl_durum.configure(text="Kur Hatası ✘", text_color=COLOR_DANGER) 
-    except: lbl_durum.configure(text="Kur Hatası ✘", text_color=COLOR_DANGER)
+        else: 
+            lbl_durum.configure(text="Kur Hatası ✘", text_color=COLOR_DANGER) 
+    except: 
+        lbl_durum.configure(text="Kur Hatası ✘", text_color=COLOR_DANGER)
 
-def baslat_kur_thread(): threading.Thread(target=tcmb_kur_getir).start()
+def baslat_kur_thread(): 
+    threading.Thread(target=tcmb_kur_getir, daemon=True).start()
 
 def proje_verilerini_topla():
     return {
@@ -208,7 +202,6 @@ def hesapla():
         satis_toplam_usd = satis_m + satis_i
         kdvli_toplam_usd = satis_toplam_usd * (1 + kdv/100)
 
-        # Sonuç Kartlarını Güncelle
         update_result_card(lbl_ham_toplam_val, ham_toplam_usd, kur_usd, kur_eur)
         update_result_card(lbl_satis_toplam_val, satis_toplam_usd, kur_usd, kur_eur)
         update_result_card(lbl_tl_kdvli_val, kdvli_toplam_usd, kur_usd, kur_eur)
@@ -218,7 +211,6 @@ def hesapla():
 def update_result_card(label, usd_val, kur_usd, kur_eur):
     eur_val = (usd_val * kur_usd) / kur_eur if kur_eur > 0 else 0
     tl_val = usd_val * kur_usd
-    
     text = f"$ {format_para(usd_val)}\n€ {format_para(eur_val)}\n₺ {format_para(tl_val)}"
     label.configure(text=text)
 
@@ -240,11 +232,9 @@ def projeyi_kaydet(sessiz=False):
     global ACIK_DOSYA_YOLU
     veri = proje_verilerini_topla()
     
-    # 1. Klasör yapısını kontrol et / oluştur ve hedef klasörü al
     hedef_klasor = klasor_yapisi_kontrol_ve_olustur()
     if not hedef_klasor: return False
 
-    # 2. Dosya Adı: "Müşteri İsmi - Ürün İsmi.json"
     m_adi = temizle_dosya_adi(entry_musteri.get())
     p_adi = temizle_dosya_adi(entry_proje_adi.get())
     dosya_adi = f"{m_adi} - {p_adi}.json"
@@ -283,11 +273,9 @@ def projeyi_yukle():
 def excele_aktar():
     if not proje_verileri: messagebox.showwarning("Uyarı", "Liste boş."); return
     
-    # Klasör yapısını kontrol et ve yolu al
     hedef_klasor = klasor_yapisi_kontrol_ve_olustur()
     if not hedef_klasor: return
     
-    # Dosya Adı: "Müşteri İsmi - Ürün İsmi.xlsx"
     m_adi = temizle_dosya_adi(entry_musteri.get())
     p_adi = temizle_dosya_adi(entry_proje_adi.get())
     dosya_adi = f"{m_adi} - {p_adi}.xlsx"
@@ -314,11 +302,9 @@ def excele_aktar():
 def pdf_olustur_ve_ac():
     if not proje_verileri: messagebox.showwarning("Uyarı", "Liste boş."); return
     
-    # Klasör yapısını kontrol et ve yolu al
     hedef_klasor = klasor_yapisi_kontrol_ve_olustur()
     if not hedef_klasor: return
     
-    # Dosya Adı: "Müşteri İsmi - Ürün İsmi.pdf"
     m_adi = temizle_dosya_adi(entry_musteri.get())
     p_adi = temizle_dosya_adi(entry_proje_adi.get())
     dosya_adi = f"{m_adi} - {p_adi}.pdf"
@@ -564,7 +550,6 @@ ctk.CTkButton(f_calc, text="HESAPLA", command=hesapla, fg_color="#F57C00", width
 
 f_res = ctk.CTkFrame(f_foot, fg_color="transparent"); f_res.pack(side="right", fill="both", expand=True, padx=10, pady=10)
 
-# SONUÇ KARTLARI (Çoklu Para Birimi Destekli)
 c1 = create_res_card(f_res, "1. Ham Maliyet", "#C8E6C9"); c1.pack(side="left", fill="both", expand=True, padx=5)
 lbl_ham_toplam_val = ctk.CTkLabel(c1, text="...\n...\n...", font=("Consolas", 14, "bold"), text_color="#1B5E20"); lbl_ham_toplam_val.pack(anchor="center", pady=10)
 
