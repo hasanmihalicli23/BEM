@@ -49,8 +49,8 @@ Projeyi kendi bilgisayarınızda çalıştırmak için terminale sırasıyla şu
 
 **1. Projeyi İndirin:**
 ```bash
-git clone [https://github.com/hasanmihalicli23/BEM_Otomasyon.git](https://github.com/hasanmihalicli23/BEM_Otomasyon.git)
-cd BEM_Otomasyon
+git clone [https://github.com/hasanmihalicli23/BEM.git](https://github.com/hasanmihalicli23/BEM.git)
+cd BEM
 
 ```
 
@@ -73,7 +73,7 @@ python main_launcher.py
 ## 📂 PROJE DİZİN YAPISI
 
 ```text
-BEM_Otomasyon/
+BEM/
 ├── 📂 apps/                  # MODÜLLERİN KAYNAK KODLARI
 │   ├── 📂 proje_klasor_yonetimi/
 │   ├── 📂 maliyet_hesaplama/
