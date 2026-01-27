@@ -94,12 +94,13 @@ BEM_Otomasyon/
 
 Bu proje **Hasan Mıhalıçlı** tarafından geliştirilmiştir.
 
-<a href="https://github.com/hasanmihalicli23">
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/GitHub-Follow-181717%3Fstyle%3Dflat%26logo%3Dgithub" />
-</a>
-<a href="mailto:mail@hasanmihalicli.com">
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/Email-Contact-D14836%3Fstyle%3Dflat%26logo%3Dgmail%26logoColor%3Dwhite" />
-</a>
+  <a href="https://www.linkedin.com/in/hasanmihalicli23/" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin" />
+  </a>
+  <a href="https://github.com/hasanmihalicli23" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-Follow-black?style=for-the-badge&logo=github" />
+  </a>
+
 
 *Copyright © 2026 BEM Engineering Solutions*
 
