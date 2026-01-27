@@ -1,0 +1,36 @@
+# --- PyInstaller (EXE Oluşturma) Dosyaları ---
+# Bu dosyalar her derlemede yeniden oluşur, depoya atılmaz.
+build/
+dist/
+*.spec
+
+# --- Python Derleme ve Önbellek Dosyaları ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Kullanıcı Ayarları ve Geçici Veriler ---
+# Bu dosya her kullanıcının kendi bilgisayarında özel kalmalıdır.
+settings.json
+
+# --- Sanal Ortamlar (Varsa) ---
+venv/
+env/
+.env
+.venv/
+
+# --- IDE ve Editör Ayarları ---
+.vscode/
+.idea/
+*.swp
+
+# --- İşletim Sistemi Dosyaları ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# --- Proje Özelinde Oluşabilecek Geçici Dosyalar ---
+# Eğer test sırasında oluşan PDF veya Excel'ler varsa onları da ekleyebilirsin:
+# *.pdf
+# *.xlsx

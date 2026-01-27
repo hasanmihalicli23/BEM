@@ -5,7 +5,7 @@ import sys
 import json
 from tkinter import filedialog, messagebox
 
-# --- MODÜLLERİN IMPORT EDİLMESİ (EXE İÇİN GEREKLİ) ---
+# --- 1. MODÜLLERİ İÇE AKTAR (PYINSTALLER İÇİN ŞART) ---
 try:
     import apps.proje_yonetimi.main as mod_proje
     import apps.batch_exporter.main as mod_exporter
@@ -16,7 +16,7 @@ try:
 except ImportError as e:
     print(f"Modül import uyarısı: {e}")
 
-# --- AYARLAR YÖNETİMİ ---
+# --- 2. AYARLAR VE YOL YÖNETİMİ ---
 SETTINGS_FILE = "settings.json"
 
 def load_settings():
@@ -36,7 +36,7 @@ def resource_path(relative_path):
     except: base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
-# --- TEMA ---
+# --- 3. ARAYÜZ ---
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("dark-blue")
 COLOR_BG = "#121212"
@@ -55,6 +55,7 @@ class MainLauncher(ctk.CTk):
         self.settings = load_settings()
         self.workspace_path = self.settings.get("workspace_path", "")
 
+        # İlk açılışta klasör seçilmemişse sor
         if not self.workspace_path or not os.path.exists(self.workspace_path):
             self.select_workspace(first_run=True)
 
@@ -98,14 +99,23 @@ class MainLauncher(ctk.CTk):
         card = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=15, cursor="hand2", border_width=1, border_color="#2B2B2B")
         card.pack(pady=6, padx=35, fill="x")
         
+        # --- DÜZELTİLEN KOMUT ÇALIŞTIRMA MANTIĞI ---
         def command():
             try:
-                # DÜZELTME BURADA YAPILDI: sys.argv[0] eklendi
-                # Bu sayede komut: python.exe main_launcher.py --run-proje "C:/Yol" şeklinde çalışır.
-                script_path = sys.argv[0]
-                subprocess.Popen([sys.executable, script_path, flag, self.workspace_path])
+                # Eğer program EXE olarak çalışıyorsa (Frozen)
+                if getattr(sys, 'frozen', False):
+                    # EXE'nin kendisini argümanlarla çağır
+                    # Örn: BEM.exe --run-proje "C:\Yol"
+                    cmd = [sys.executable, flag, self.workspace_path]
+                else:
+                    # Eğer Python script olarak çalışıyorsa
+                    # Örn: python.exe main_launcher.py --run-proje "C:\Yol"
+                    cmd = [sys.executable, os.path.abspath(__file__), flag, self.workspace_path]
+                
+                subprocess.Popen(cmd)
+                
             except Exception as e:
-                messagebox.showerror("Hata", str(e))
+                messagebox.showerror("Hata", f"Modül açılamadı:\n{str(e)}")
 
         def on_enter(e): card.configure(border_color="#FFFFFF", fg_color="#252525")
         def on_leave(e): card.configure(border_color="#2B2B2B", fg_color=COLOR_CARD)
@@ -125,12 +135,13 @@ class MainLauncher(ctk.CTk):
         for w in [lbl_icon, lbl_title, lbl_desc, frame_text]:
             w.bind("<Enter>", on_enter); w.bind("<Leave>", on_leave); w.bind("<Button-1>", on_click)
 
-# --- ANA GİRİŞ NOKTASI (DAĞITICI) ---
+# --- 4. TRAFİK POLİSİ (DAĞITICI) ---
 if __name__ == "__main__":
+    # Eğer program argüman ile çağrıldıysa (örn: --run-maliyet), ilgili modülü aç
     if len(sys.argv) > 1:
         komut = sys.argv[1]
         
-        # Yol argümanını al (eğer varsa 3. argümandır)
+        # Yol argümanını al (Genelde 2. sırada gelir: [exe, flag, path])
         path_arg = sys.argv[2] if len(sys.argv) > 2 else None
 
         if komut == "--run-proje":
@@ -139,13 +150,12 @@ if __name__ == "__main__":
             app.mainloop()
             
         elif komut == "--run-exporter":
-            # Batch exporter direkt klasör seçtirdiği için path zorunlu değil ama ekleyelim
             app = mod_exporter.BatchExporterApp()
             app.mainloop()
             
         elif komut == "--run-maliyet":
             if path_arg: mod_maliyet.FIXED_ROOT = path_arg
-            mod_maliyet.main() # Maliyet modülünü başlat
+            mod_maliyet.main() # Maliyet'in özel korumalı main fonksiyonunu çağırıyoruz
             
         elif komut == "--run-kutle":
             if path_arg: mod_kutle.WORKSPACE_PATH = path_arg
@@ -162,7 +172,8 @@ if __name__ == "__main__":
             app = mod_standart.StandardLibraryApp()
             app.mainloop()
 
-    # Argüman yoksa (Çift tıklama ile açıldıysa) Ana Menü
+    # Argüman YOKSA veya script doğrudan çalıştırıldıysa Ana Menüyü aç
+    # (sys.argv[1] -- ile başlamıyorsa, geliştirme ortamında yol gelmiş olabilir, yine menüyü aç)
     if len(sys.argv) == 1 or (len(sys.argv) > 1 and not sys.argv[1].startswith("--")):
         app = MainLauncher()
         app.mainloop()
