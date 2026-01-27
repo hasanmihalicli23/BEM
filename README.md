@@ -1,65 +1,58 @@
 ```markdown
-# 🏭 BEM Otomasyon - Entegre Üretim & Proje Yönetim Sistemi
+<div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python)
-![GUI](https://img.shields.io/badge/GUI-CustomTkinter-indigo?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)
+  # 🏭 BEM OTOMASYON SİSTEMİ
+  ### Entegre Üretim, Maliyet Analizi ve Proje Yönetim Çözümü
 
-**BEM Otomasyon**, üretim ve mühendislik süreçlerini dijitalleştirmek, hata payını sıfıra indirmek ve proje yönetimini standartlaştırmak için geliştirilmiş kapsamlı bir masaüstü yazılımıdır.
+  <p>
+    <img src="https://img.shields.io/badge/VERSION-V5.3-blue?style=for-the-badge&logo=appveyor" />
+    <img src="https://img.shields.io/badge/PYTHON-3.10%2B-F7D100?style=for-the-badge&logo=python&logoColor=black" />
+    <img src="https://img.shields.io/badge/PLATFORM-WINDOWS-0078D6?style=for-the-badge&logo=windows&logoColor=white" />
+    <img src="https://img.shields.io/badge/LISANS-MIT-green?style=for-the-badge" />
+  </p>
 
----
+  <p>
+    <strong>BEM Otomasyon</strong>, üretim süreçlerindeki kaosu bitirmek için tasarlandı. <br>
+    Klasörlemeden maliyet analizine, teknik hesaplamalardan kesim optimizasyonuna kadar her şey tek bir arayüzde.
+  </p>
 
-## 🚀 Modüller ve Özellikler
+  <br>
 
-Sistem, birbirine tam entegre çalışan 4 ana modülden oluşur:
-
-### 📁 1. Akıllı Proje & Klasör Yönetimi
-- **Otomatik Yapılandırma:** Müşteri ve Proje adına göre standart klasör ağacını (Dökümantasyon, Tasarım, Üretim) tek tıkla kurar.
-- **Standartlaşma:** Karmaşık ve düzensiz dosya yapısını engeller.
-- **Entegrasyon:** Diğer tüm modüller bu dosya yapısını baz alarak çalışır.
-
-### 💰 2. Maliyet Analizi & Otomatik Teklif
-- **Gider Hesaplama:** Hammadde, işçilik, fason ve genel giderleri detaylı analiz eder.
-- **Canlı Döviz:** TCMB üzerinden anlık USD/EUR kurlarını çeker ve TL karşılıklarını hesaplar.
-- **Akıllı Kayıt:** Teklifi PDF formatında oluşturur ve otomatik olarak ilgili projenin `Dökümantasyon/Teklifler` klasörüne kaydeder.
-- **Çoklu Para Birimi:** Sonuç ekranında USD, EUR ve TL maliyetlerini aynı anda gösterir.
-
-### ✂️ 3. Kesim Optimizasyonu (1D Nesting)
-- **Fire Analizi:** Profil ve boru kesimlerinde en az fire verecek yerleşimi matematiksel olarak hesaplar.
-- **Görsel Rapor:** Hangi parçanın hangi stoktan kesileceğini grafiksel olarak çizer.
-- **PDF Çıktısı:** Kesim operatörü için detaylı iş emri oluşturur.
-
-### 📚 4. Teknik Kütüphane & Hesaplayıcı
-- **Dijital Katalog:** Cıvata, Rulman, Profil gibi standart makine elemanlarının verilerini içerir (JSON tabanlı, güncellenebilir).
-- **Mühendislik Hesapları:** Kama kanalı, segman yuvası ve dişli hesaplarını otomatik yapar.
-- **Birim Çevirici:** Teknik birimler arasında hızlı dönüşüm sağlar.
+</div>
 
 ---
 
-## 🛠️ Kurulum ve Çalıştırma
+## 🧩 MODÜLLER VE YETENEKLER
 
-Bu projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları izleyin:
+Proje, birbirine entegre çalışan 4 ana güç merkezinden oluşur.
 
-### 1. Projeyi İndirin (Klonlayın)
-Terminali açın ve şu komutu yazarak projeyi bilgisayarınıza çekin:
+| 📁 1. Akıllı Proje Yönetimi | 💰 2. Maliyet & Teklif Robotu |
+| :--- | :--- |
+| • **Oto-Klasörleme:** Müşteri ve Ürün adına göre standart `Dökümantasyon`, `Tasarım`, `Üretim` ağacını saniyeler içinde kurar.<br>• **ERP Mantığı:** Tüm dosyaları doğru yere, standart isimlendirme ile kaydeder.<br>• **Düzen:** Yanlış yere dosya kaydetmeyi imkansız kılar. | • **Canlı Kur:** TCMB'den anlık **USD/EUR** çeker.<br>• **Hassas Hesap:** Malzeme, İşçilik ve Fason giderlerini ayrı marjlarla hesaplar.<br>• **PDF Çıktısı:** Profesyonel teklif formunu oluşturur ve ilgili klasöre atar.<br>• **Çoklu Para:** Maliyeti aynı anda TL, USD ve EUR gösterir. |
+
+| ✂️ 3. Kesim Optimizasyonu (Nesting) | 📚 4. Dijital Mühendislik Kütüphanesi |
+| :--- | :--- |
+| • **Minumum Fire:** Profil ve boru kesimlerinde en az fire verecek kombinasyonu hesaplar.<br>• **Görsel Rapor:** Hangi parçanın hangi stoktan kesileceğini grafiksel çizer.<br>• **Stok Takibi:** Kullanılan ve kalan parçaları raporlar. | • **Canlı Katalog:** Cıvata, Rulman, Profil gibi elemanların teknik verilerini içerir.<br>• **Hesaplayıcılar:** Kama kanalı, dişli hesabı ve birim çevirici.<br>• **Genişletilebilir:** JSON tabanlı veritabanı sayesinde kolayca yeni ürün eklenir. |
+
+## 🛠️ KURULUM VE ÇALIŞTIRMA
+
+Bilgisayarınıza kurmak için aşağıdaki adımları terminale (CMD) sırasıyla yapıştırın:
+
+### 1. İndirme
 ```bash
 git clone [https://github.com/hasanmihalicli23/BEM_Otomasyon.git](https://github.com/hasanmihalicli23/BEM_Otomasyon.git)
 cd BEM_Otomasyon
 
 ```
 
-### 2. Gerekli Kütüphaneleri Yükleyin
-
-Projenin çalışması için gerekli paketleri yükleyin:
+### 2. Yükleme
 
 ```bash
 pip install -r requirements.txt
 
 ```
 
-### 3. Uygulamayı Başlatın
-
-Kurulum bittikten sonra ana menüyü açmak için:
+### 3. Başlatma
 
 ```bash
 python main_launcher.py
@@ -68,33 +61,26 @@ python main_launcher.py
 
 ---
 
-## 📂 Proje Dizin Yapısı
+<div align="center">
+
+### 📂 PROJE DİZİN YAPISI
 
 ```text
 BEM_Otomasyon/
-├── apps/
-│   ├── proje_klasor_yonetimi/   # Modül 1: Klasör Yapılandırma
-│   ├── maliyet_hesaplama/       # Modül 2: Maliyet & PDF & TCMB
-│   ├── kesim_optimizasyonu/     # Modül 3: Nesting Algoritması
-│   └── standart_kutuphane/      # Modül 4: Teknik Veri & Hesap
-├── assets/                      # İkonlar ve görseller
-├── main_launcher.py             # Ana Başlatıcı (Menü)
-├── requirements.txt             # Kütüphane Listesi
-└── README.md                    # Dökümantasyon Dosyası
+├── 📂 apps/                  # Modül Kaynak Kodları
+│   ├── proje_klasor_yonetimi/
+│   ├── maliyet_hesaplama/
+│   ├── kesim_optimizasyonu/
+│   └── standart_kutuphane/
+├── 📂 assets/                # Arayüz Görselleri
+├── 📄 main_launcher.py       # Ana Kontrol Paneli
+├── 📄 requirements.txt       # Kütüphane Listesi
+└── 📄 README.md              # Bu Dosya
 
 ```
 
----
+**Geliştirici:** [HASAN MIHALIÇLI]
 
-## 📞 İletişim
+*Copyright © 2026 BEM Engineering Solutions*
 
-Geliştirici: **[HASAN MIHALIÇLI]**
-GitHub Profilim: [github.com/hasanmihalicli23](https://www.google.com/search?q=https://github.com/hasanmihalicli23)
-
----
-
-*Copyright © 2026 BEM Engineering Solutions.*
-
-```
-
-```
+</div>
