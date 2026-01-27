@@ -1,16 +1,3 @@
-`<div>` etiketi GitHub'da çalışır, ancak **Markdown içinde HTML kullanmanın bazı kuralları vardır.** Eğer çalışmıyorsa sebebi şunlardan biridir:
-
-1. **Boşluk Hatası:** HTML etiketleri (`<div>` vb.) ile Markdown kodları (örneğin `## Başlık`) arasında **bir satır boşluk** bırakmazsan GitHub bunları tanımaz ve bozuk gösterir.
-2. **Kapanmayan Etiket:** `<div>` açtıysan, mutlaka `</div>` ile kapatman gerekir. Yoksa sayfanın geri kalanı tamamen bozulur.
-3. **VS Code Önizlemesi:** Bazen VS Code önizlemesi ile GitHub'ın gerçek görüntüsü farklı olabilir.
-
-Senin için **"Hem ortalı (div'li) olsun, hem de bozulmasın"** diyorsan, işte **en garantili hibrit sürüm.**
-
-Sadece **Logo ve Başlık** kısmını HTML (div) ile ortaladım, geri kalan her şeyi **Standart Markdown** yaptım. Bu sayede hem çok şık durur hem de asla bozulmaz.
-
-Bunu kopyala ve yapıştır:
-
-```markdown
 <div align="center">
 
 # 🏭 BEM OTOMASYON SİSTEMİ
@@ -28,21 +15,35 @@ Bunu kopyala ve yapıştır:
 
 ---
 
-## 🧩 Modüller ve Yetenekler
+## 🧩 MODÜLLER VE YETENEKLER
 
-Sistem, üretimdeki darboğazları çözmek için 4 ana modülden oluşur:
+### 📂 1. Akıllı Proje Yönetimi
+> *Dosya karmaşasına son veren dijital arşiv sistemi.*
+* **Oto-Klasörleme:** Müşteri ve Ürün adına göre standart klasör ağacını tek tıkla kurar.
+* **ERP Mantığı:** Dosyaları otomatik olarak `Dökümantasyon` veya `Üretim` klasörüne yönlendirir.
+* **Standartlaşma:** Yanlış isimlendirmeyi ve dosya kaybını %100 engeller.
 
-| 📁 1. Akıllı Proje Yönetimi | 💰 2. Maliyet & Teklif Robotu |
-| :--- | :--- |
-| • **Oto-Klasörleme:** Müşteri/Ürün bazlı standart klasör ağacını tek tıkla kurar.<br>• **ERP Mantığı:** Dosyaları otomatik olarak doğru yere kaydeder.<br>• **Düzen:** Dosya karmaşasını %100 engeller. | • **Canlı Kur:** TCMB'den anlık **USD/EUR** çeker.<br>• **Hassas Hesap:** Malzeme ve işçilik karlarını ayrı yönetir.<br>• **PDF Çıktısı:** Teklifi oluşturur ve müşteri klasörüne kaydeder. |
+### 💰 2. Maliyet & Teklif Robotu
+> *Saniyeler içinde hatasız maliyet hesabı ve teklif oluşturma.*
+* **Canlı Kur:** TCMB'den anlık **USD/EUR** çeker ve TL karşılığını hesaplar.
+* **Hassas Hesap:** Malzeme, işçilik ve fason karlarını ayrı ayrı yönetir.
+* **Otomatik Rapor:** Teklifi profesyonel PDF formatında oluşturur ve müşteri klasörüne kaydeder.
 
-| ✂️ 3. Kesim Optimizasyonu | 📚 4. Mühendislik Kütüphanesi |
-| :--- | :--- |
-| • **Minimum Fire:** Profilleri en az atık olacak şekilde dizer.<br>• **Görsel Rapor:** Kesim planını grafiksel olarak ekrana çizer.<br>• **Stok Takibi:** Hangi parçanın nereden çıkacağını raporlar. | • **Dijital Katalog:** Cıvata, Rulman, Profil verilerini içerir.<br>• **Hesaplayıcılar:** Kama kanalı, dişli ve segman hesabı yapar.<br>• **Birim Çevirici:** Teknik birimler arası hızlı dönüşüm sağlar. |
+### ✂️ 3. Kesim Optimizasyonu (Nesting)
+> *Malzeme firelerini minimize eden akıllı algoritma.*
+* **Minimum Fire:** Profil ve boruları en az atık olacak şekilde matematiksel olarak dizer.
+* **Görsel Rapor:** Kesim planını grafiksel olarak ekrana çizer.
+* **Stok Takibi:** Hangi parçanın hangi stoktan kesileceğini raporlar.
+
+### 📚 4. Mühendislik Kütüphanesi
+> *Mühendisin dijital el kitabı.*
+* **Dijital Katalog:** Cıvata, Rulman, Profil gibi standart elemanların verilerini içerir.
+* **Hesaplayıcılar:** Kama kanalı, dişli ve segman hesabı yapar.
+* **Birim Çevirici:** Teknik birimler arası hızlı dönüşüm sağlar.
 
 ---
 
-## 🛠️ Kurulum ve Çalıştırma
+## 🛠️ KURULUM VE ÇALIŞTIRMA
 
 Projeyi kendi bilgisayarınızda çalıştırmak için terminale sırasıyla şu komutları yazın:
 
@@ -69,7 +70,7 @@ python main_launcher.py
 
 ---
 
-## 📂 Proje Dizin Yapısı
+## 📂 PROJE DİZİN YAPISI
 
 ```text
 BEM_Otomasyon/
@@ -103,7 +104,3 @@ Bu proje **Hasan Mıhalıçlı** tarafından geliştirilmiştir.
 *Copyright © 2026 BEM Engineering Solutions*
 
 </div>
-
-```
-
-```
