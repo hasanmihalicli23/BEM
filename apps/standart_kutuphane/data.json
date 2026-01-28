@@ -142,20 +142,22 @@
 
   "CALCULATION_DATA": {
     "K_FACTOR_TABLE": [
-      {"thick": "0.50", "k": "0.455", "elong": "0.50", "min_bend": "5 mm"},
-      {"thick": "0.60", "k": "0.455", "elong": "0.60", "min_bend": "5 mm"},
-      {"thick": "0.80", "k": "0.455", "elong": "0.80", "min_bend": "5 mm"},
-      {"thick": "1.00", "k": "0.455", "elong": "0.90", "min_bend": "6.5 mm"},
-      {"thick": "1.20", "k": "0.380", "elong": "1.10", "min_bend": "7 mm"},
-      {"thick": "1.50", "k": "0.485", "elong": "1.25", "min_bend": "7.5 mm"},
-      {"thick": "2.00", "k": "0.370", "elong": "1.75", "min_bend": "7.5 mm"},
-      {"thick": "2.50", "k": "0.430", "elong": "2.25", "min_bend": "10 mm"},
-      {"thick": "3.00", "k": "0.400", "elong": "2.75", "min_bend": "12 mm"},
-      {"thick": "4.00", "k": "0.400", "elong": "3.60", "min_bend": "15 mm"},
-      {"thick": "5.00", "k": "0.380", "elong": "4.50", "min_bend": "20 mm"},
-      {"thick": "6.00", "k": "0.380", "elong": "5.60", "min_bend": "25 mm"},
-      {"thick": "8.00", "k": "0.380", "elong": "7.00", "min_bend": "35 mm"},
-      {"thick": "10.00", "k": "0.370", "elong": "8.50", "min_bend": "45 mm"}
+            {"thick": "0.5", "k": "0.455", "elong": "0.5", "radius": "1.2", "die_width": "8", "min_bend": "5"},
+            {"thick": "0.6", "k": "0.455", "elong": "0.6", "radius": "1.2", "die_width": "8", "min_bend": "5"},
+            {"thick": "0.8", "k": "0.455", "elong": "0.8", "radius": "1.2", "die_width": "8", "min_bend": "5"},
+            {"thick": "1",   "k": "0.455", "elong": "0.9", "radius": "1.2", "die_width": "8", "min_bend": "6.5"},
+            {"thick": "1.2", "k": "0.38",  "elong": "1.1", "radius": "1.2", "die_width": "10", "min_bend": "7"},
+            {"thick": "1.5", "k": "0.485", "elong": "1.25","radius": "1.5", "die_width": "10", "min_bend": "7.5"},
+            {"thick": "2",   "k": "0.37",  "elong": "1.75","radius": "1.5", "die_width": "10/12", "min_bend": "7.5"},
+            {"thick": "2.5", "k": "0.43",  "elong": "2.25","radius": "2.5", "die_width": "16", "min_bend": "11"},
+            {"thick": "3",   "k": "0.44",  "elong": "2.5", "radius": "2.5", "die_width": "16", "min_bend": "11"},
+            {"thick": "4",   "k": "0.40",  "elong": "3.6", "radius": "3.5", "die_width": "22", "min_bend": "16"},
+            {"thick": "5 (Tip 1)", "k": "0.485", "elong": "4.2", "radius": "5",   "die_width": "D30", "min_bend": "22"},
+            {"thick": "5 (Tip 2)", "k": "0.43",  "elong": "4.5", "radius": "5.5", "die_width": "35", "min_bend": "23"},
+            {"thick": "6",   "k": "0.475", "elong": "5.5", "radius": "8",   "die_width": "50", "min_bend": "32"},
+            {"thick": "8",   "k": "0.435", "elong": "7",   "radius": "8",   "die_width": "50", "min_bend": "33"},
+            {"thick": "10",  "k": "0.405", "elong": "9",   "radius": "10",  "die_width": "50/75", "min_bend": "35"},
+            {"thick": "12",  "k": "0.41",  "elong": "10.5","radius": "12",  "die_width": "50/75", "min_bend": "37"}
     ],
     
     "KEYWAY_DIN6885": [
