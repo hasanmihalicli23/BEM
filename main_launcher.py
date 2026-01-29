@@ -12,7 +12,7 @@ try:
     import apps.maliyet_hesaplayici.main as mod_maliyet
     import apps.kutle_hesaplayici.main as mod_kutle
     import apps.kesim_optimizasyonu.main as mod_kesim
-    import apps.standart_kutuphane.main as mod_standart
+    # mod_standart kaldırıldı
 except ImportError as e:
     print(f"Modül import uyarısı: {e}")
 
@@ -75,8 +75,10 @@ class MainLauncher(ctk.CTk):
     def setup_ui(self):
         self.frame_header = ctk.CTkFrame(self, fg_color="transparent")
         self.frame_header.pack(pady=(30, 10))
-        ctk.CTkLabel(self.frame_header, text="BURSA ELİF MAKİNA", font=("Impact", 40), text_color=COLOR_TEXT_MAIN).pack()
-        ctk.CTkLabel(self.frame_header, text="MÜHENDİSLİK YÖNETİM PANELİ", font=("Arial", 12, "bold"), text_color="gray").pack(pady=(5, 0))
+        self.frame_header_label1 = ctk.CTkLabel(self.frame_header, text="BURSA ELİF MAKİNA", font=("Impact", 40), text_color=COLOR_TEXT_MAIN)
+        self.frame_header_label1.pack()
+        self.frame_header_label2 = ctk.CTkLabel(self.frame_header, text="MÜHENDİSLİK YÖNETİM PANELİ", font=("Arial", 12, "bold"), text_color="gray")
+        self.frame_header_label2.pack(pady=(5, 0))
 
         self.frame_path = ctk.CTkFrame(self, fg_color="#181818", corner_radius=10)
         self.frame_path.pack(pady=10, padx=35, fill="x")
@@ -91,7 +93,7 @@ class MainLauncher(ctk.CTk):
         self.create_mono_card("MALİYET HESAPLAYICI", "Teklif analizi.", "💰", "--run-maliyet")
         self.create_mono_card("KÜTLE HESAPLAYICI", "Ağırlık hesabı.", "⚖️", "--run-kutle")
         self.create_mono_card("KESİM OPTİMİZASYONU", "Profil kesim planı.", "✂️", "--run-kesim")
-        self.create_mono_card("STANDART ELEMANLAR", "Teknik kütüphane.", "🔩", "--run-standart")
+        # Standart Elemanlar kartı kaldırıldı
 
         ctk.CTkLabel(self, text="| Bursa Elif Makina - 2026", font=("Arial", 10), text_color="#333").pack(side="bottom", pady=10)
 
@@ -167,13 +169,9 @@ if __name__ == "__main__":
             app = mod_kesim.CuttingOptimizerApp()
             app.mainloop()
             
-        elif komut == "--run-standart":
-            if path_arg: mod_standart.WORKSPACE_PATH = path_arg
-            app = mod_standart.StandardLibraryApp()
-            app.mainloop()
+        # --run-standart bloğu kaldırıldı
 
     # Argüman YOKSA veya script doğrudan çalıştırıldıysa Ana Menüyü aç
-    # (sys.argv[1] -- ile başlamıyorsa, geliştirme ortamında yol gelmiş olabilir, yine menüyü aç)
     if len(sys.argv) == 1 or (len(sys.argv) > 1 and not sys.argv[1].startswith("--")):
         app = MainLauncher()
         app.mainloop()
