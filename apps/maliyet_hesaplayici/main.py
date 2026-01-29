@@ -11,10 +11,11 @@ import json
 import os
 import sys
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, A5  # A5'i buraya ekledik
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib import colors
+from reportlab.lib.utils import simpleSplit
 
 # --- 1. DİNAMİK YOL VE AYARLAR ---
 def resource_path(relative_path):
@@ -249,30 +250,127 @@ def pdf_olustur_ve_ac():
     if not proje_verileri: return
     hedef = klasor_yapisi_kontrol_ve_olustur()
     if not hedef: return
+    
     dosya = f"{temizle_dosya_adi(entry_musteri.get())} - {temizle_dosya_adi(entry_proje_adi.get())}.pdf"
     yol = os.path.join(hedef, dosya)
     
     try:
-        c = canvas.Canvas(yol, pagesize=A4); w, h = A4
-        try: pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf')); f_n='Arial'; f_b='Arial-Bold'
-        except: f_n='Helvetica'; f_b='Helvetica-Bold'
+        # --- 1. TÜRKÇE FONT AYARLAMASI (Kare sorununu çözer) ---
+        try:
+            # Windows font klasöründen Arial'i çekiyoruz
+            pdfmetrics.registerFont(TTFont('TrArial', 'arial.ttf'))
+            pdfmetrics.registerFont(TTFont('TrArial-Bold', 'arialbd.ttf'))
+            f_n = 'TrArial'       # Normal
+            f_b = 'TrArial-Bold'  # Kalın
+        except:
+            f_n = 'Helvetica'
+            f_b = 'Helvetica-Bold'
         
-        c.setFont(f_b, 16); c.drawRightString(w-30, h-50, "MALİYET RAPORU")
-        c.setFont(f_n, 10); c.drawString(30, h-100, f"FİRMA: {entry_musteri.get()}"); c.drawString(30, h-120, f"PROJE: {entry_proje_adi.get()}")
+        # --- 2. SAYFA YAPISI (A5) ---
+        c = canvas.Canvas(yol, pagesize=A5)
+        w, h = A5
         
-        y = h-160; c.setFont(f_b, 9)
-        c.drawString(30, y, "KATEGORİ"); c.drawString(150, y, "ÜRÜN"); c.drawString(450, y, "TUTAR")
-        y -= 20; c.setFont(f_n, 9)
-        
-        for v in proje_verileri:
-            if y < 50: c.showPage(); y = h-50
-            c.drawString(30, y, v["kategori"]); c.drawString(150, y, v["urun"][:40])
-            c.drawString(450, y, f"{v['para']} {format_para(v['tutar'])}")
-            y -= 15
+        # --- 3. BAŞLIK FONKSİYONU ---
+        def baslik_ciz():
+            # Sağ Üst Başlık
+            c.setFont(f_b, 14)
+            c.drawRightString(w-20, h-40, "MALİYET RAPORU")
             
+            # Sol Üst Bilgiler
+            c.setFont(f_n, 9)
+            c.drawString(20, h-60, f"FİRMA: {entry_musteri.get()}")
+            c.drawString(20, h-75, f"PROJE: {entry_proje_adi.get()}")
+            c.drawString(20, h-90, f"TARİH: {datetime.now().strftime('%d.%m.%Y')}")
+            
+            # YENİ: KURLARI EKLE
+            c.setFont(f_b, 8)
+            kur_bilgi = f"KUR: USD {entry_kur_usd.get()} | EUR {entry_kur_eur.get()}"
+            c.drawString(20, h-105, kur_bilgi)
+            
+            # TABLO BAŞLIKLARI (Kategori kalktı)
+            y_baslik = h-135
+            c.setFont(f_b, 9)
+            c.drawString(20, y_baslik, "ÜRÜN / AÇIKLAMA") # Sola yaslandı
+            c.drawRightString(w-20, y_baslik, "TUTAR")
+            
+            # Başlık Altı Siyah Çizgi
+            c.setLineWidth(1)
+            c.line(20, y_baslik-5, w-20, y_baslik-5)
+            
+            return y_baslik - 20 # Başlangıç Y koordinatı
+
+        y = baslik_ciz()
+        c.setFont(f_n, 9)
+        
+        # --- 4. VERİLERİ YAZDIRMA ---
+        for v in proje_verileri:
+            # Ürün ismini satırlara böl (Wrap Text)
+            # Genişlik arttırıldı çünkü kategori kalktı (300 birim)
+            urun_text = v["urun"]
+            satirlar = simpleSplit(urun_text, f_n, 9, 300)
+            
+            satir_sayisi = len(satirlar)
+            satir_yuksekligi = satir_sayisi * 12 # Satır aralığı biraz açıldı
+            toplam_alan = satir_yuksekligi + 5 
+            
+            # Sayfa sonu kontrolü
+            if y - toplam_alan < 30:
+                c.showPage()
+                y = baslik_ciz()
+                c.setFont(f_n, 9)
+            
+            # Tutar (Sağ taraf)
+            c.drawRightString(w-20, y, f"{v['para']} {format_para(v['tutar'])}")
+            
+            # Ürün İsmi (Sol taraf - Satır satır)
+            text_y = y
+            for satir in satirlar:
+                c.drawString(20, text_y, satir) # Artık en soldan başlıyor (X=20)
+                text_y -= 12
+            
+            y -= toplam_alan
+            # GRİ ÇİZGİLER KALDIRILDI (İstek üzerine)
+
+        # --- 5. DETAYLI TOPLAM ALANI ---
+        # Eğer sayfanın altında yeterli yer yoksa yeni sayfaya geç
+        if y < 100: 
+            c.showPage()
+            y = h-50
+        else:
+            y -= 10 # Biraz boşluk bırak
+            
+        # Siyah ayırıcı çizgi
+        c.setLineWidth(1)
+        c.line(20, y, w-20, y)
+        y -= 20
+        
+        # Verileri Hazırla
+        ham_maliyet = lbl_ham_toplam_val.cget('text').replace('\n', '  |  ')
+        satis_fiyati = lbl_satis_toplam_val.cget('text').replace('\n', '  |  ')
+        kar_oranlari = f"Kâr Oranları: Malzeme %{entry_kar_malzeme.get()}  -  İşçilik %{entry_kar_iscilik.get()}"
+        
+        # 1. Satır: HAM MALİYET
+        c.setFont(f_n, 9)
+        c.drawRightString(w-20, y, f"HAM MALİYET:  {ham_maliyet}")
+        y -= 15
+        
+        # 2. Satır: KÂR ORANLARI
+        c.setFont(f_n, 8)
+        c.setFillColor(colors.gray) # Biraz gri olsun bilgi olduğu belli olsun
+        c.drawRightString(w-20, y, kar_oranlari)
+        c.setFillColor(colors.black) # Rengi geri siyaha çek
+        y -= 25 # Biraz daha boşluk
+        
+        # 3. Satır: NET TOPLAM (Büyük ve Kalın)
+        c.setFont(f_b, 12)
+        c.drawRightString(w-20, y, f"NET TOPLAM:  {satis_fiyati}")
+        
         c.save()
-        if messagebox.askyesno("PDF", f"Kaydedildi: {yol}\nAçmak ister misin?"): os.startfile(yol)
-    except Exception as e: messagebox.showerror("Hata", str(e))
+        if messagebox.askyesno("PDF Hazır", f"Kaydedildi: {yol}\nAçmak ister misin?"): 
+            os.startfile(yol)
+            
+    except Exception as e: 
+        messagebox.showerror("Hata", f"PDF Hatası:\n{str(e)}")
 
 def oto_kayit_dongusu(ms):
     global oto_kayit_job
@@ -332,10 +430,28 @@ def otomasyon_ekle():
 
 def iscelik_ekle():
     try:
-        k = float(entry_isci_kisi.get()); s = float(entry_isci_saat.get()); u = float(entry_isci_ucret.get())
-        toplam = k*s*u
-        proje_verileri.append({"id": len(proje_verileri), "tip": "ISCILIK", "kategori": "İŞÇİLİK", 
-            "urun": f"{int(k)} Kişi", "miktar": k*s, "birim": "Saat", "birim_fiyat": u, "para": cmb_isci_para.get(), "tutar": toplam})
+        # Yeni eklenen işçilik türü kutusundan veriyi alıyoruz
+        tur = cmb_isci_tur.get() 
+        k = float(entry_isci_kisi.get())
+        s = float(entry_isci_saat.get())
+        u = float(entry_isci_ucret.get())
+        
+        toplam = k * s * u
+        
+        # Listede görünecek isim: "Kaynak İşçiliği (2 Kişi)" gibi
+        urun_adi = f"{tur} ({int(k)} Kişi)"
+        
+        proje_verileri.append({
+            "id": len(proje_verileri), 
+            "tip": "ISCILIK", 
+            "kategori": "İŞÇİLİK", 
+            "urun": urun_adi, 
+            "miktar": k*s, 
+            "birim": "Saat", 
+            "birim_fiyat": u, 
+            "para": cmb_isci_para.get(), 
+            "tutar": toplam
+        })
         tabloyu_guncelle()
     except: pass
 
@@ -365,7 +481,8 @@ def main():
     global app, entry_proje_adi, entry_musteri, lbl_durum, entry_kur_eur, entry_kur_usd
     global cmb_oto_kayit, cmb_kategori, var_manuel, cmb_urun, entry_adet, cmb_birim, entry_fiyat, cmb_para
     global cmb_oto_tur, entry_oto_aciklama, entry_oto_fiyat, cmb_oto_para
-    global entry_isci_kisi, entry_isci_saat, entry_isci_ucret, cmb_isci_para, cmb_filtre
+    # BURAYA DİKKAT: cmb_isci_tur değişkenini aşağıya ekledik
+    global entry_isci_kisi, entry_isci_saat, entry_isci_ucret, cmb_isci_para, cmb_isci_tur, cmb_filtre
     global tablo, entry_kar_malzeme, entry_kar_iscilik, entry_kdv
     global lbl_ham_toplam_val, lbl_satis_toplam_val, lbl_tl_kdvli_val
 
@@ -426,7 +543,10 @@ def main():
     p_fason = create_card(frame_input, "2. Dış Hizmet / Fason"); p_fason.pack(side="left", fill="both", expand=True, padx=(0,10))
     grid_f2 = ctk.CTkFrame(p_fason, fg_color="transparent"); grid_f2.pack(fill="both", expand=True, padx=10, pady=5)
     ctk.CTkLabel(grid_f2, text="İşlem:").grid(row=0, column=0, sticky="e", pady=5)
-    cmb_oto_tur = ctk.CTkComboBox(grid_f2, values=["Lazer Kesim", "Abkant", "Taşlama", "Kaplama", "Otomasyon", "Nakliye"], width=180); cmb_oto_tur.grid(row=0, column=1, sticky="w", padx=5)
+    
+    # BURAYA "Balans" EKLENDİ
+    cmb_oto_tur = ctk.CTkComboBox(grid_f2, values=["Lazer Kesim", "Abkant", "Taşlama", "Kaplama", "Otomasyon", "Nakliye", "Balans"], width=180); cmb_oto_tur.grid(row=0, column=1, sticky="w", padx=5)
+    
     ctk.CTkLabel(grid_f2, text="Açıklama:").grid(row=1, column=0, sticky="e", pady=5); entry_oto_aciklama = ctk.CTkEntry(grid_f2, width=180); entry_oto_aciklama.grid(row=1, column=1, sticky="w", padx=5)
     ctk.CTkLabel(grid_f2, text="Fiyat:").grid(row=2, column=0, sticky="e", pady=5)
     sub_f2 = ctk.CTkFrame(grid_f2, fg_color="transparent"); sub_f2.grid(row=2, column=1, sticky="w")
@@ -436,12 +556,22 @@ def main():
 
     p_iscilik = create_card(frame_input, "3. Atölye İşçilik"); p_iscilik.pack(side="left", fill="both", expand=True)
     grid_f3 = ctk.CTkFrame(p_iscilik, fg_color="transparent"); grid_f3.pack(fill="both", expand=True, padx=10, pady=5)
-    ctk.CTkLabel(grid_f3, text="Kişi Sayısı:").grid(row=0, column=0, sticky="e", pady=5); entry_isci_kisi = ctk.CTkEntry(grid_f3, width=60, justify="center"); entry_isci_kisi.insert(0, "1"); entry_isci_kisi.grid(row=0, column=1, sticky="w", padx=5)
-    ctk.CTkLabel(grid_f3, text="Saat/Kişi:").grid(row=1, column=0, sticky="e", pady=5); entry_isci_saat = ctk.CTkEntry(grid_f3, width=60, justify="center"); entry_isci_saat.grid(row=1, column=1, sticky="w", padx=5)
-    ctk.CTkLabel(grid_f3, text="Saat Ücreti:").grid(row=2, column=0, sticky="e", pady=5)
-    sub_f3 = ctk.CTkFrame(grid_f3, fg_color="transparent"); sub_f3.grid(row=2, column=1, sticky="w")
+    
+    # YENİ EKLENEN KISIM: İŞÇİLİK TÜRÜ SEÇİMİ (ROW 0)
+    ctk.CTkLabel(grid_f3, text="İşçilik Tipi:").grid(row=0, column=0, sticky="e", pady=5)
+    cmb_isci_tur = ctk.CTkComboBox(grid_f3, values=["Montaj İşçiliği", "Kaynak İşçiliği", "Torna İşçiliği", "Freze İşçiliği", "Genel İşçilik"], width=140)
+    cmb_isci_tur.grid(row=0, column=1, sticky="w", padx=5)
+    
+    # Diğer satırlar birer basamak aşağı kaydı (Row 1, 2, 3 oldu)
+    ctk.CTkLabel(grid_f3, text="Kişi Sayısı:").grid(row=1, column=0, sticky="e", pady=5); entry_isci_kisi = ctk.CTkEntry(grid_f3, width=60, justify="center"); entry_isci_kisi.insert(0, "1"); entry_isci_kisi.grid(row=1, column=1, sticky="w", padx=5)
+    
+    ctk.CTkLabel(grid_f3, text="Saat/Kişi:").grid(row=2, column=0, sticky="e", pady=5); entry_isci_saat = ctk.CTkEntry(grid_f3, width=60, justify="center"); entry_isci_saat.grid(row=2, column=1, sticky="w", padx=5)
+    
+    ctk.CTkLabel(grid_f3, text="Saat Ücreti:").grid(row=3, column=0, sticky="e", pady=5)
+    sub_f3 = ctk.CTkFrame(grid_f3, fg_color="transparent"); sub_f3.grid(row=3, column=1, sticky="w")
     entry_isci_ucret = ctk.CTkEntry(sub_f3, width=80, justify="right"); entry_isci_ucret.insert(0, "1100"); entry_isci_ucret.pack(side="left", padx=5)
     cmb_isci_para = ctk.CTkComboBox(sub_f3, values=["TL", "USD", "EUR"], width=70); cmb_isci_para.pack(side="left")
+    
     ctk.CTkButton(p_iscilik, text="EKLE (+)", fg_color=COLOR_PRIMARY, hover_color="#1565C0", command=iscelik_ekle).pack(fill="x", padx=10, pady=10)
 
     f_ctrl = ctk.CTkFrame(main_scroll, fg_color="transparent"); f_ctrl.pack(fill="x", padx=15, pady=5)
