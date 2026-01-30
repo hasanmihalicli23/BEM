@@ -18,21 +18,33 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib import colors
 from reportlab.lib.utils import simpleSplit
 
-# --- 1. DİNAMİK YOL VE AYARLAR ---
+# --- 1. DİNAMİK YOL VE AYARLAR (GÜNCELLENDİ: EXE YANI SABİTLEME) ---
 def resource_path(relative_path):
+    """
+    Bu fonksiyon sadece GÖRSELLER (ikon vb.) için kullanılır.
+    EXE içine gömülü dosyaları bulur.
+    """
     try: base_path = sys._MEIPASS
     except: base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
-if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
-    FIXED_ROOT = sys.argv[1]
+# --- PROGRAMIN ÇALIŞTIĞI ANA DİZİNİ BULMA ---
+if getattr(sys, 'frozen', False):
+    # Eğer program EXE olarak çalışıyorsa, EXE'nin olduğu klasörü al
+    ANA_DIZIN = os.path.dirname(sys.executable)
 else:
-    FIXED_ROOT = os.path.join(os.path.expanduser("~"), "Documents", "BEM_Kayitlari")
+    # Eğer Python kodu olarak çalışıyorsa, .py dosyasının olduğu klasörü al
+    ANA_DIZIN = os.path.dirname(os.path.abspath(__file__))
 
-if not os.path.exists(FIXED_ROOT): os.makedirs(FIXED_ROOT, exist_ok=True)
+# Proje klasörlerini (Dökümantasyon vb.) de EXE'nin olduğu yerde oluşturur
+FIXED_ROOT = ANA_DIZIN 
+# Not: Eğer proje klasörlerinin (Müşteri/Proje Adı) sabit C:\Users\...\BEM içinde olmasını istersen
+# burayı değiştirmeden, sadece aşağıdaki DOSYA_ADI kısımlarını kullanabilirsin.
+# Ancak senin isteğin "yanına koysun" olduğu için mantık bu şekilde kuruldu.
 
-DOSYA_ADI = resource_path("katalog.json")
-BIRIM_DOSYA_ADI = resource_path("birimler.json")
+# --- VERİTABANI DOSYALARI (HEP EXE'NİN YANINDA OLACAK) ---
+DOSYA_ADI = os.path.join(ANA_DIZIN, "katalog.json")
+BIRIM_DOSYA_ADI = os.path.join(ANA_DIZIN, "birimler.json")
 
 # --- GLOBAL DEĞİŞKENLER ---
 CTK_THEME = "blue"
@@ -57,17 +69,10 @@ duzenleme_modu = False
 duzenlenecek_id = None
 aktif_duzenleme_tipi = None 
 
-varsayilan_katalog = {
-    "Motorlar": ["Asenkron Motor 0.18 kW", "Asenkron Motor 0.37 kW"],
-    "Redüktörler": ["Sonsuz Vida 30 Gövde", "Sonsuz Vida 50 Gövde"],
-    "Sürücüler": ["Hız Kontrol 0.37 kW", "Hız Kontrol 0.75 kW"],
-    "Rulmanlar": ["UCFL 204", "UCFL 205", "6204 ZZ"],
-    "Hammadde: Saclar": ["DKP Sac 1mm", "DKP Sac 2mm", "Paslanmaz Sac 1mm"],
-    "Hammadde: Profiller": ["Kutu Profil 30x30", "Kutu Profil 40x40"],
-    "Civatalar": ["M6 Civata", "M8 Civata", "M10 Civata"],
-    "Pnömatik": ["Piston Ø32", "Piston Ø50", "Valf 5/2"],
-    "Diğer / Özel Giriş": ["Diğer (Manuel Giriş)"]
-}
+# --- BOŞ BAŞLANGIÇ LİSTESİ (TEMİZ SAYFA İÇİN) ---
+varsayilan_katalog = {} 
+
+# Birimler listesi (İstersen burayı da boşaltabilirsin: [])
 varsayilan_birimler = ["Adet", "Kg", "Mt", "Tk", "Lt", "Paket", "Plaka", "Hizmet", "Saat"]
 
 # --- 2. YARDIMCI FONKSİYONLAR ---
@@ -121,9 +126,11 @@ def katalog_yukle():
     if os.path.exists(DOSYA_ADI):
         try:
             with open(DOSYA_ADI, "r", encoding="utf-8") as f: return json.load(f)
-        except: return varsayilan_katalog
+        except: return varsayilan_katalog # Dosya bozuksa boş liste döner
     else: 
-        katalog_kaydet(varsayilan_katalog); return varsayilan_katalog
+        # Dosya yoksa (ilk açılış), BOŞ listeyi kaydet ve onu dön
+        katalog_kaydet(varsayilan_katalog)
+        return varsayilan_katalog
 
 def birim_kaydet(veri_listesi):
     try:
