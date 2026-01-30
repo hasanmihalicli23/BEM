@@ -462,7 +462,16 @@ def iscelik_ekle():
         tur = cmb_isci_tur.get(); aciklama = entry_isci_aciklama.get() 
         k = float(entry_isci_kisi.get()); s = float(entry_isci_saat.get()); u = float(entry_isci_ucret.get())
         toplam = k * s * u
-        urun_adi = f"{tur} - {aciklama} ({int(k)} Kişi)" if aciklama else f"{tur} ({int(k)} Kişi)"
+        
+        # --- DEĞİŞİKLİK BURADA: (10 Saat x 2 Kişi) formatı ---
+        # {s:g} komutu 10.0 ise 10 yazar, 10.5 ise 10.5 yazar (gereksiz sıfırı atar)
+        detay_metni = f"({s:g} Saat x {int(k)} Kişi)"
+        
+        if aciklama: 
+            urun_adi = f"{tur} - {aciklama} {detay_metni}"
+        else: 
+            urun_adi = f"{tur} {detay_metni}"
+        # -----------------------------------------------------
         
         yeni_veri = {
             "tip": "ISCILIK", "kategori": "İŞÇİLİK", "urun": urun_adi, 
@@ -514,9 +523,7 @@ def duzenle_secili():
         messagebox.showwarning("Seçim Yok", "Lütfen düzenlemek istediğiniz satırı seçin.")
         return
 
-    # HATA DÜZELTİLDİ: Seçili öğenin kendisi zaten ID
     item_id = secili_item[0]
-
     veri = next((item for item in proje_verileri if item["id"] == item_id), None)
     if not veri: return
 
@@ -568,27 +575,51 @@ def duzenle_secili():
         try:
             ham = veri["urun"]
             kisi_sayisi = "1"
-            if "(" in ham:
-                kisi_part = ham.rsplit("(", 1)[1] 
-                kisi_sayisi = kisi_part.split(" ")[0]
-                ham = ham.rsplit("(", 1)[0].strip()
+            saat_sayisi = ""
+
+            # --- YENİ PARSE MANTIĞI: (10 Saat x 2 Kişi) ---
+            # Regex ile içindeki sayıları avlıyoruz
+            match = re.search(r"\(([\d\.]+) Saat x (\d+) Kişi\)", ham)
             
-            if " - " in ham:
-                p = ham.split(" - ", 1)
+            if match:
+                # Yeni format bulunduysa
+                saat_sayisi = match.group(1)
+                kisi_sayisi = match.group(2)
+                # Parantez öncesini temizle (Ürün Adı)
+                temiz_ad = ham.split(" (")[0]
+            else:
+                # Eski format: (2 Kişi)
+                if "(" in ham:
+                    kisi_part = ham.rsplit("(", 1)[1] 
+                    kisi_sayisi = kisi_part.split(" ")[0]
+                    temiz_ad = ham.rsplit("(", 1)[0].strip()
+                    # Saati toplam miktardan bulacağız
+                else:
+                    temiz_ad = ham
+
+            # Adı ve Açıklamayı ayır
+            if " - " in temiz_ad:
+                p = temiz_ad.split(" - ", 1)
                 cmb_isci_tur.set(p[0])
                 entry_isci_aciklama.delete(0, 'end'); entry_isci_aciklama.insert(0, p[1])
             else:
-                cmb_isci_tur.set(ham)
+                cmb_isci_tur.set(temiz_ad)
                 entry_isci_aciklama.delete(0, 'end')
             
+            # Kişi sayısını yaz
             entry_isci_kisi.delete(0, 'end'); entry_isci_kisi.insert(0, kisi_sayisi)
-        except: pass
+            
+            # Saati yaz (Eğer regex bulduysa onu kullan, bulamadıysa toplamdan hesapla)
+            if saat_sayisi:
+                entry_isci_saat.delete(0, 'end'); entry_isci_saat.insert(0, saat_sayisi)
+            else:
+                k = float(kisi_sayisi) if kisi_sayisi else 1
+                if k == 0: k = 1
+                saat = veri["miktar"] / k
+                entry_isci_saat.delete(0, 'end'); entry_isci_saat.insert(0, f"{saat:g}")
 
-        k = float(entry_isci_kisi.get())
-        if k == 0: k = 1
-        saat = veri["miktar"] / k
-        
-        entry_isci_saat.delete(0, 'end'); entry_isci_saat.insert(0, f"{saat:g}")
+        except Exception as e: print(e)
+
         entry_isci_ucret.delete(0, 'end'); entry_isci_ucret.insert(0, str(veri["birim_fiyat"]))
         cmb_isci_para.set(veri["para"])
         
