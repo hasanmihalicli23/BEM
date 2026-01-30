@@ -23,7 +23,9 @@
         "UCFL 205",
         "UCP 204",
         "6204 ZZ",
-        "Lineer Rulman"
+        "Lineer Rulman",
+        "22314 SKF Rulman",
+        "29414 SKF Rulman"
     ],
     "Konveyör Parçaları": [
         "Denge Ayağı M10",
@@ -66,5 +68,10 @@
     "Diğer / Özel Giriş": [
         "Diğer (Manuel Giriş)",
         "khk"
-    ]
+    ],
+    "Hammadde Boru": [
+        "Ø160 Boru",
+        "Ø160-Ø140x120"
+    ],
+    "Hidrolik": []
 }
