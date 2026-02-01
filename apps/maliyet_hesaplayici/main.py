@@ -38,9 +38,6 @@ else:
 
 # Proje klasörlerini (Dökümantasyon vb.) de EXE'nin olduğu yerde oluşturur
 FIXED_ROOT = ANA_DIZIN 
-# Not: Eğer proje klasörlerinin (Müşteri/Proje Adı) sabit C:\Users\...\BEM içinde olmasını istersen
-# burayı değiştirmeden, sadece aşağıdaki DOSYA_ADI kısımlarını kullanabilirsin.
-# Ancak senin isteğin "yanına koysun" olduğu için mantık bu şekilde kuruldu.
 
 # --- VERİTABANI DOSYALARI (HEP EXE'NİN YANINDA OLACAK) ---
 DOSYA_ADI = os.path.join(ANA_DIZIN, "katalog.json")
@@ -70,6 +67,7 @@ duzenlenecek_id = None
 aktif_duzenleme_tipi = None 
 
 # --- BOŞ BAŞLANGIÇ LİSTESİ (TEMİZ SAYFA İÇİN) ---
+# Burası tamamen BOŞ bırakıldı. İlk açılışta tertemiz gelecek.
 varsayilan_katalog = {} 
 
 # Birimler listesi (İstersen burayı da boşaltabilirsin: [])
@@ -100,6 +98,7 @@ def klasor_yapisi_kontrol_ve_olustur():
     if not m_adi or not p_adi:
         messagebox.showwarning("Eksik Bilgi", "Lütfen Müşteri ve Proje Adını giriniz.")
         return None
+    # Proje dosyaları da artık ANA_DIZIN içinde oluşacak
     proje_yolu = os.path.join(FIXED_ROOT, m_adi, p_adi)
     hedef_yol = os.path.join(proje_yolu, "Dökümantasyon", "Teklifler")
     if os.path.exists(hedef_yol): return hedef_yol
@@ -123,10 +122,14 @@ def katalog_kaydet(veri):
     except: pass
 
 def katalog_yukle():
+    # Güçlendirilmiş Okuma: Dosya var ama boşsa veya bozuksa hata vermez, boş liste döner.
     if os.path.exists(DOSYA_ADI):
         try:
-            with open(DOSYA_ADI, "r", encoding="utf-8") as f: return json.load(f)
-        except: return varsayilan_katalog # Dosya bozuksa boş liste döner
+            with open(DOSYA_ADI, "r", encoding="utf-8") as f:
+                veri = f.read()
+                if not veri.strip(): return {} # Dosya boşsa {} dön
+                return json.loads(veri)
+        except: return {} # Okuma hatası olursa {} dön
     else: 
         # Dosya yoksa (ilk açılış), BOŞ listeyi kaydet ve onu dön
         katalog_kaydet(varsayilan_katalog)
